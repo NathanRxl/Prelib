@@ -27,64 +27,6 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <p>&lt;!DOCTYPE html&gt;
-
-  </p>
-    
-    
-    
-
-<pre><code>&lt;link href="lib/ionic/css/ionic.css" rel="stylesheet"&gt;
-&lt;link href="css/style.css" rel="stylesheet"&gt;
-
-&lt;!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
-&lt;link href="css/ionic.app.css" rel="stylesheet"&gt;
---&gt;
-&lt;!-- Google maps api js --&gt;
-&lt;script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&amp;libraries=geometry"&gt;&lt;/script&gt;
-&lt;!-- ionic/angularjs js --&gt;
-&lt;script src="lib/ionic/js/ionic.bundle.js"&gt;&lt;/script&gt;
-
-&lt;!-- cordova script (this will be a 404 during development) --&gt;
-&lt;script src="cordova.js"&gt;&lt;/script&gt;
-
-&lt;!-- your app's js --&gt;
-&lt;script src="js/app.js"&gt;&lt;/script&gt;
-</code></pre>
-
-<p>
-  </p>
-
-<pre><code>&lt;ion-pane&gt;
-  &lt;ion-header-bar class="bar-stable"&gt;
-    &lt;h1 class="title"&gt;Prelib'&lt;/h1&gt;
-  &lt;/ion-header-bar&gt;
-  &lt;ion-content&gt;
-      &lt;div ng-controller="StoreController as store"&gt;
-          &lt;ion-list&gt;
-            &lt;ion-item ng-repeat="station in stations | orderBy:predicate | limitTo : 3"&gt;
-                {{station.name.slice(8)}}
-            &lt;/ion-item&gt;
-          &lt;/ion-list&gt;
-          &lt;!--&lt;div class="list"&gt;  
-          &lt;div class="item item-divider"&gt;
-            Near stations
-          &lt;/div&gt;
-          &lt;div ng-repeat="station in store.stations"&gt;
-              &lt;a class="item" href="#"&gt;
-                &lt;h3&gt; {{station.name}}&lt;/h3&gt;
-              &lt;/a&gt;
-              &lt;!--&lt;div ng-include="station-name.html"&gt;&lt;/div&gt;--&gt;
-         &lt;!-- &lt;/div&gt;
-          &lt;/div&gt; --&gt;
-      &lt;/div&gt;
-  &lt;/ion-content&gt;
-&lt;/ion-pane&gt;
-</code></pre>
-
-<p>
-</p>
-      </section>
     </div>
 
     <!-- FOOTER  -->
@@ -93,8 +35,6 @@
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-
-    
 
   </body>
 </html>

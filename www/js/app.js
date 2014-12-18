@@ -19,9 +19,6 @@ app.run(function($ionicPlatform) {
   });
 })
 
-
-
-
 app.controller('StoreController', function($scope,$http){
     var geolocalisation = {};
     if (navigator.geolocation) {
@@ -57,23 +54,13 @@ app.controller('StoreController', function($scope,$http){
     })
     $scope.predicate = 'distance';
     
-   
-       
-
-    
     /*$http.get("https:///api.jcdecaux.com/vls/v1/stations", {
     params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
     }).success(function(data) {
      $scope.stations = data;
     })*/
-    
-    
-   
+ 
   });
-
-
-
-
 
 app.directive("stationName", function() {
     return {
@@ -83,7 +70,6 @@ app.directive("stationName", function() {
 });
 
 /*var stations = [{"number":31705,"name":"31705 - CHAMPEAUX (BAGNOLET)","address":"RUE DES CHAMPEAUX (PRES DE LA GARE ROUTIERE) - 93170 BAGNOLET","latitude":48.8645278209514,"longitude":2.34701005811448916170724425901},{"number":10042,"name":"10042 - POISSONNIÈRE - ENGHIEN","address":"52 RUE D'ENGHIEN / ANGLE RUE DU FAUBOURG POISSONIERE - 75010 PARIS","latitude":48.87242006305313,"longitude":2.348395236282807}];*/
-
       
 /*.controller('StoreController', [ '$http',function($http){
      var store = this;

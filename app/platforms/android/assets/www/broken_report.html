@@ -23,29 +23,17 @@
     <script src="js/app.js"></script>
   </head>
   <body ng-app="starter">
-
-    <ion-pane>
-	<ion-header-bar class="bar-stable">
-        <h1 class="title">Prelib'</h1>
+  <ion-pane>
+  <ion-header-bar class="bar-stable">
+  <a  href="index.html">
+<button class="button">BACK</button>
+</a>
+        <h1		class="title">Prelib'</h1>
       </ion-header-bar>
-      <ion-content>
-          <div ng-controller="StoreController as store">
-              <ion-list>
-              <div class="item item-button">
-                <ion-item ng-repeat="station in stations | orderBy:predicate | limitTo : 3">
-					{{station.name.slice(8)}}
-				<a class="item-icon-right" href="broken_report.html">
-					<i class="icon ion-alert"></i>
-				</a>
-                </ion-item>
-				</div>
-				
-              
-              </ion-list>
-           
-			</div>
-		
-      </ion-content>
-   </ion-pane>
+<ion-content>
+<strong>Oups ! Cette page est en construction</strong>
+
+</ion-content>
+</ion-pane>
   </body>
 </html>

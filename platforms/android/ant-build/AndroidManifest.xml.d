@@ -1,2 +1,2 @@
-/home/sources_prelib/app/platforms/android/ant-build/AndroidManifest.xml : \
-/home/sources_prelib/app/platforms/android/AndroidManifest.xml \
+/vagrant/Prelib/platforms/android/ant-build/AndroidManifest.xml : \
+/vagrant/Prelib/platforms/android/AndroidManifest.xml \

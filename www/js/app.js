@@ -93,4 +93,15 @@ app.directive("stationName", function() {
     });
 }]);*/
                                                                                                         
-                                                                                                                    
+var app = angular.module('myApp', ['ionic']);
+app.config(function($stateProvider) {
+  $stateProvider
+  .state('index', {
+    url: '/',
+    templateUrl: 'index.html'
+  })
+  .state('infos', {
+    url: '/infos',
+    templateUrl: 'infos.html'
+  });
+});                                                                                                                    

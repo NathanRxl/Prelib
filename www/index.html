@@ -25,21 +25,52 @@
   
   <body ng-app="starter">
     <ion-pane>
-		<ion-header-bar class="bar-stable">
+		<ion-header-bar class="bar-positive">
 			<h1 class="title">Prelib'</h1>
 		</ion-header-bar>
 		
 		<ion-content>
 			<div ng-controller="StoreController as store">
-				<ion-list>
-					<div class="item item-button">
-					<ion-item ng-repeat="station in stations | orderBy:predicate | limitTo : 3">
-					{{station.name.slice(8)}}
-					<a class="item-icon-right" href="broken_report.html"><i class="icon ion-alert"></i></a>
-					</ion-item>
-					</div>
-				</ion-list>
-			</div>
+				
+				
+				
+					
+					
+					
+					
+					
+			
+					
+					 <ion-list>
+					<div class="list">
+					
+					
+					<div class="item item-button-right"> <ion-item ng-repeat="station in stations | orderBy:predicate | limitTo : 5">{{station.name.slice(8)}}<button class="button button-outline button-positive">
+					{{station.nb_velo}}
+					</button>	
+				<a href="broken_report.html?nb={{station.nb_velo}}">
+					<button class="button button-positive ">
+					<i class="icon ion-alert"> </i>
+					</button></a></ion-item>
+					
+					</div></div>
+					<ion-list>
+						
+
+		
+					</div>		
+ 
+  
+					
+				
+				
+					
+					
+					
+					
+					
+				
+		
 		</ion-content>
 		
 	</ion-pane>

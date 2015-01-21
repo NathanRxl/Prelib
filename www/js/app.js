@@ -6,6 +6,17 @@
 
 var app = angular.module('starter', ['ionic'])
 
+function getQueryVariable(variable) //A remplacer par une fonction angular directement
+{
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+}
+
 app.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -46,6 +57,8 @@ app.controller('StoreController', function($scope,$http){
     for (var i=0; i <$scope.stations.length; i++) {
        var p2 = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
        var distance = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
+	   var nb_velo=$scope.stations[i].available_bikes;
+	   $scope.stations[i].nb_velo=nb_velo;
        $scope.stations[i].distance = distance;
         
    }
@@ -54,14 +67,70 @@ app.controller('StoreController', function($scope,$http){
     })
     $scope.predicate = 'distance';
     
+	$scope.available_bike=function(){
+	return  getQueryVariable("nb");
+	}
+		
     /*$http.get("https:///api.jcdecaux.com/vls/v1/stations", {
     params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
     }).success(function(data) {
      $scope.stations = data;
     })*/
- 
-  });
+	
 
+   $scope.items = [
+    { id: 1 },
+    { id: 2 },
+    { id: 3 },
+    { id: 4 },
+    { id: 5 },
+    { id: 6 },
+    { id: 7 },
+    { id: 8 },
+    { id: 9 },
+    { id: 10 },
+    { id: 11 },
+    { id: 12 },
+    { id: 13 },
+    { id: 14 },
+    { id: 15 },
+    { id: 16 },
+    { id: 17 },
+    { id: 18 },
+    { id: 19 },
+    { id: 20 },
+    { id: 21 },
+    { id: 22 },
+    { id: 23 },
+    { id: 24 },
+    { id: 25 },
+    { id: 26 },
+    { id: 27 },
+    { id: 28 },
+    { id: 29 },
+    { id: 30 },
+    { id: 31 },
+    { id: 32 },
+    { id: 33 },
+    { id: 34 },
+    { id: 35 },
+    { id: 36 },
+    { id: 37 },
+    { id: 38 },
+    { id: 39 },
+    { id: 40 },
+    { id: 41 },
+    { id: 42 },
+    { id: 43 },
+    { id: 44 },
+    { id: 45 },
+    { id: 46 },
+    { id: 47 },
+    { id: 48 },
+    { id: 49 },
+    { id: 50 }
+  ];
+ });
 app.directive("stationName", function() {
     return {
       restrict: 'E',

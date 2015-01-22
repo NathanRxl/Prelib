@@ -58,8 +58,11 @@ app.controller('StoreController', function($scope,$http){
        var p2 = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
        var distance = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
 	   var nb_velo=$scope.stations[i].available_bikes;
+	   var capacity=$scope.stations[i].bike_stands
+
 	   $scope.stations[i].nb_velo=nb_velo;
        $scope.stations[i].distance = distance;
+	   $scope.stations[i].capacity=capacity;
         
    }
        

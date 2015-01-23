@@ -31,27 +31,27 @@
 		
 		<ion-content>
 			<div ng-controller="StoreController as store">
-		
 					<div class="list">
-					
-					<div class="item item-button-right"> <ion-list>
-					<ion-item ng-repeat="station in stations | orderBy:predicate | limitTo : 5">
-					{{station.name.slice(8)}}  
-					
-					<button class="button button-outline button-positive button-small"> 
-					{{station.nb_velo}} / {{station.capacity}}
-					</button>	
-					&nbsp; 
-					<a href="broken_report.html?nb={{station.nb_velo}}">
-					<button class="button button-positive button-small">
-					<i class="icon ion-alert"> </i>
-					</button></a></ion-item>
+						<div class="item item-button-right">
+							<ion-list>
+								<ion-item ng-repeat="station in stations | orderBy:sortAccordingTo | limitTo : 3">
+								
+									{{station.name.slice(8)}}  
+								
+									<button class="button button-outline button-positive button-small"> 
+									{{station.nb_velo}} / {{station.capacity}}
+									</button>	
+									&nbsp;
+									<a href="broken_report.html?nb={{station.nb_velo}}">
+									<button class="button button-positive button-small"><i class="icon ion-alert"></i></button>
+									</a>
+									
+								</ion-item>
+							</ion-list>
+						</div>
 					</div>
-					</div>
-					<ion-list>
-					</div>		
-
-					</ion-content>	
+			</div>
+		</ion-content>	
 	</ion-pane>
   </body>
   

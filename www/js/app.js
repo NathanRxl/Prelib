@@ -50,16 +50,18 @@ app.factory('VelibAPI', function($http) {
 app.controller('StoreController', function($scope,$http){
 	
 	var onGeolocationSuccess = function(position) {
-		$scope.userPosition = google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+
 		
 		var getNearestStation = function(data) {
 			$scope.stations = data;
 			var stationPosition;
 			var distanceToStation;
 			for (var i=0; i<$scope.stations.length; i++) {
-			   stationPosition = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
+                stationPosition = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
 			   distanceToStation = google.maps.geometry.spherical.computeDistanceBetween($scope.userPosition, stationPosition);
 			   $scope.stations[i].distance = distanceToStation;
+                
 			}
 		}
 		
@@ -77,7 +79,7 @@ app.controller('StoreController', function($scope,$http){
 			  'message: ' + error.message + '\n');
 	}
 
-	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError);
+	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
     
 	$scope.available_bike=function(){
 	return  getQueryVariable("nb");

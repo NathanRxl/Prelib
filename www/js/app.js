@@ -47,8 +47,18 @@ app.factory('VelibAPI', function($http) {
 	}
 })
 
-app.controller('StoreController', function($scope,$http){
-	
+app.controller('StoreController', function($scope,$http,VelibAPI){
+    
+    // Trying to call app.factory in order to isolate the call to JCDecaux Velib API
+    //But asynchrone execution issues...
+	/*var TEST;
+    VelibAPI.getStations().then(function(stations){
+        //console.log(stations.data);
+        TEST=stations;
+        console.log(TEST);
+    });
+    console.log(TEST);*/
+    
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
@@ -71,7 +81,6 @@ app.controller('StoreController', function($scope,$http){
 		params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
 		}).success(getNearestStation)
 		
-		$scope.sortAccordingTo = 'distance';
 	};
 
 	function onError(error) {

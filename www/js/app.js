@@ -101,6 +101,7 @@ app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage,P
 			   distanceToStation = google.maps.geometry.spherical.computeDistanceBetween($scope.userPosition, stationPosition);
 			   $scope.stations[i].distance = distanceToStation;
 			}
+            $localstorage.setObject('stations',data);
 		}
         
         var date = new Date().getTime();
@@ -109,13 +110,13 @@ app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage,P
         var diff = date - last_connection;
 
         if (diff < 20000){
-            var data = JSON.parse($localstorage.get('stations'));
-            console.log(data);
-            getNearestStation(data);
+            $scope.stations = JSON.parse($localstorage.get('stations'));
+            //console.log($scope.stations);
+            //getNearestStation(data);
         }
         else {
             VelibAPI.getStationsfromAPI().success(function(data){
-                $localstorage.setObject('stations',data);
+                
                 getNearestStation(data);
             });
         }

@@ -7,16 +7,8 @@
 "use strict";
 var app = angular.module('starter', ['ionic'])
 
-function getQueryVariable(variable) //A remplacer par une fonction angular directement
-{
-       var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
-}
+//A remplacer par une fonction angular directement
+//On peut avec angular utiliser des 'views' ce qui permet de naviguer dans la même page et ainsi avoir toujours accès aux variables
 
 app.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -31,28 +23,92 @@ app.run(function($ionicPlatform) {
   });
 })
 
-app.factory('VelibAPI', function($http) {
-	var stations=[];
+app.factory('PrelibAPI', function($http) {
 
 	return {
-		getStations: function(){
+		report: function(stationName,numberOfBike){
 			return $http({
-    url: 'https://api.jcdecaux.com/vls/v1/stations', 
-    method: "GET",
-    params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
-    }).then(function(data){
-				return data;
-			});
+    url: 'prelib-api.herokuapp.com/report', 
+    method: "POST",
+    params: {stationName:stationName, numberOfBike:numberOfBike}
+    })
+		},
+        
+        getPredictionOfStations: function(stationId){
+            return $http({
+    url: 'prelib-api.herokuapp.com/stations', 
+    method: "POST",
+    params: {stationName:stationId}
+    })
 		}
 	}
 })
 
-app.controller('StoreController', function($scope,$http){
-	
+app.factory('VelibAPI', function($http) {
+
+	return {
+		getStationsfromAPI: function(){
+			return $http({
+    url: 'https://api.jcdecaux.com/vls/v1/stations', 
+    method: "GET",
+    params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
+    })
+		}
+	}
+})
+
+app.factory('$localstorage', ['$window', function($window) {
+  return {
+    set: function(key, value) {
+      $window.localStorage[key] = value;
+    },
+    get: function(key, defaultValue) {
+      return $window.localStorage[key] || defaultValue;
+    },
+    setObject: function(key, value) {
+      $window.localStorage[key] = JSON.stringify(value);
+    },
+    getObject: function(key) {
+      return JSON.parse($window.localStorage[key]);
+    }
+  }
+}]);
+
+app.factory('LoaderService', function($rootScope, $ionicLoading) {
+  return {
+        show : function() {
+
+            $rootScope.loading = $ionicLoading.show({
+
+              // The text to display in the loading indicator
+              content: '<i class="icon ion-looping"></i> Loading',
+
+              // The animation to use
+              animation: 'fade-in',
+
+              // Will a dark overlay or backdrop cover the entire view
+              showBackdrop: true,
+
+              // The maximum width of the loading indicator
+              // Text will be wrapped if longer than maxWidth
+              maxWidth: 200,
+
+              // The delay in showing the indicator
+              showDelay: 10
+            });
+        },
+
+        hide : function(){
+            $rootScope.loading.hide();
+        }
+    }
+});
+
+app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading ){
+    LoaderService.show();
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-
-		
+        
 		var getNearestStation = function(data) {
 			$scope.stations = data;
 			var stationPosition;
@@ -61,31 +117,72 @@ app.controller('StoreController', function($scope,$http){
                 stationPosition = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
 			   distanceToStation = google.maps.geometry.spherical.computeDistanceBetween($scope.userPosition, stationPosition);
 			   $scope.stations[i].distance = distanceToStation;
-                
 			}
+            $localstorage.setObject('stations',data);
 		}
+        
+        var date = new Date().getTime();
+        var last_connection = $localstorage.getObject('last_connection');
+        $localstorage.setObject('last_connection',date);
+        var diff = date - last_connection;
+
+        if (diff < 10000){
+            console.log(diff/1000);
+            $scope.stations = JSON.parse($localstorage.get('stations'));
+            $ionicLoading.hide();
+            //console.log($scope.stations);
+        }
+        else if(diff < 30000){
+            console.log(diff/1000);
+            var data = JSON.parse($localstorage.get('stations'));
+            $ionicLoading.hide();
+            getNearestStation(data);
+        }
+        else {
+            VelibAPI.getStationsfromAPI().success(function(data){
+                $ionicLoading.hide();
+                getNearestStation(data);
+            });
+        }
 		
-		$http({
-		url: 'https://api.jcdecaux.com/vls/v1/stations', 
-		method: "GET",
-		params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
-		}).success(getNearestStation)
-		
-		$scope.sortAccordingTo = 'distance';
 	};
 
 	function onError(error) {
-		alert('code: '    + error.code    + '\n' +
-			  'message: ' + error.message + '\n');
+		alert(//'code: '    + error.code    + '\n' +
+			 // 'message: ' + error.message + '\n'
+              'You need to accept geolocalisation to use this application'
+             );
 	}
 
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+});
+ 
+app.controller('ReportController', function($scope,PrelibAPI){
     
-	$scope.available_bike=function(){
+    function getQueryVariable(variable) {      
+        var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+    }
+    
+    $scope.available_bike=function(){
 	return  getQueryVariable("nb");
 	}
-
-	$scope.items = [
+    $scope.station_name=function(){
+	return  Number(getQueryVariable("id"));
+	}
+    
+    $scope.report = function(idStation,numberOfBike) {
+        $scope.reported = 'ID de la station: ' + idStation + ' et nombre de vélos reportés cassés: ' +numberOfBike;
+        console.log([idStation,numberOfBike]);
+        //PrelibAPI.report(idStation,numberOfBike);
+    }
+    
+    $scope.items = [
 		{ id: 1 },
 		{ id: 2 },
 		{ id: 3 },
@@ -136,14 +233,15 @@ app.controller('StoreController', function($scope,$http){
 		{ id: 48 },
 		{ id: 49 },
 		{ id: 50 } ];
- });
- 
+});
+
+/*
 app.directive("stationName", function() {
     return {
       restrict: 'E',
       templateUrl: "templates/station-name.html"
     };
-});
+});*/
                                                                                                         
 var app = angular.module('myApp', ['ionic']);
 app.config(function($stateProvider) {

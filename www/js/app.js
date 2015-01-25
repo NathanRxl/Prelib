@@ -35,34 +35,26 @@ app.factory('VelibAPI', function($http) {
 	var stations=[];
 
 	return {
-		getStations: function(){
+		getStationsfromAPI: function(){
 			return $http({
     url: 'https://api.jcdecaux.com/vls/v1/stations', 
     method: "GET",
     params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
-    }).then(function(data){
-				return data;
-			});
+    })
 		}
 	}
 })
 
 app.controller('StoreController', function($scope,$http,VelibAPI){
-    
-    // Trying to call app.factory in order to isolate the call to JCDecaux Velib API
-    //But asynchrone execution issues...
-	/*var TEST;
-    VelibAPI.getStations().then(function(stations){
-        //console.log(stations.data);
-        TEST=stations;
-        console.log(TEST);
-    });
-    console.log(TEST);*/
+
     
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
-		
+    VelibAPI.getStationsfromAPI().success(function(data){
+        getNearestStation(data);
+    });
+        
 		var getNearestStation = function(data) {
 			$scope.stations = data;
 			var stationPosition;
@@ -71,21 +63,16 @@ app.controller('StoreController', function($scope,$http,VelibAPI){
                 stationPosition = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
 			   distanceToStation = google.maps.geometry.spherical.computeDistanceBetween($scope.userPosition, stationPosition);
 			   $scope.stations[i].distance = distanceToStation;
-                
 			}
 		}
-		
-		$http({
-		url: 'https://api.jcdecaux.com/vls/v1/stations', 
-		method: "GET",
-		params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
-		}).success(getNearestStation)
 		
 	};
 
 	function onError(error) {
-		alert('code: '    + error.code    + '\n' +
-			  'message: ' + error.message + '\n');
+		alert(//'code: '    + error.code    + '\n' +
+			 // 'message: ' + error.message + '\n'
+              'You need to accept geolocalisation to use this application'
+             );
 	}
 
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});

@@ -106,7 +106,7 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
 
 app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading ){
 	var onGeolocationSuccess = function(position) {
-            LoaderService.show();
+            //LoaderService.show();
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
 		var getNearestStation = function(data) {
@@ -129,18 +129,18 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
         if (diff < 10000){
             console.log(diff/1000);
             $scope.stations = JSON.parse($localstorage.get('stations'));
-            $ionicLoading.hide();
+            //$ionicLoading.hide();
             //console.log($scope.stations);
         }
         else if(diff < 30000){
             console.log(diff/1000);
             var data = JSON.parse($localstorage.get('stations'));
-            $ionicLoading.hide();
+            //$ionicLoading.hide();
             getNearestStation(data);
         }
         else {
             VelibAPI.getStationsfromAPI().success(function(data){
-                $ionicLoading.hide();
+                //$ionicLoading.hide();
                 getNearestStation(data);
             });
         }

@@ -7,9 +7,11 @@
 "use strict";
 var app = angular.module('starter', ['ionic'])
 
-function getQueryVariable(variable) //A remplacer par une fonction angular directement
-{
-       var query = window.location.search.substring(1);
+//A remplacer par une fonction angular directement
+//On peut avec angular utiliser des 'views' ce qui permet de naviguer dans la même page et ainsi avoir toujours accès aux variables
+function getQueryVariable(variable) 
+{      
+        var query = window.location.search.substring(1);
        var vars = query.split("&");
        for (var i=0;i<vars.length;i++) {
                var pair = vars[i].split("=");
@@ -32,14 +34,21 @@ app.run(function($ionicPlatform) {
 })
 
 app.factory('PrelibAPI', function($http) {
-	var stations=[];
 
 	return {
 		report: function(stationName,numberOfBike){
 			return $http({
-    url: 'prelib-api.herokuapp.com', 
+    url: 'prelib-api.herokuapp.com/report', 
     method: "POST",
     params: {stationName:stationName, numberOfBike:numberOfBike}
+    })
+		},
+        
+        getPredictionOfStations: function(stationId){
+            return $http({
+    url: 'prelib-api.herokuapp.com/stations', 
+    method: "POST",
+    params: {stationName:stationId}
     })
 		}
 	}
@@ -76,7 +85,7 @@ app.factory('$localstorage', ['$window', function($window) {
   }
 }]);
 
-app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage){
+app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage,PrelibAPI){
     
     
     
@@ -98,10 +107,10 @@ app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage){
         var last_connection = $localstorage.getObject('last_connection');
         $localstorage.setObject('last_connection',date);
         var diff = date - last_connection;
-        //console.log(diff/1000);
 
-        if (diff < 30000){
+        if (diff < 20000){
             var data = JSON.parse($localstorage.get('stations'));
+            console.log(data);
             getNearestStation(data);
         }
         else {
@@ -125,6 +134,15 @@ app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage){
 	$scope.available_bike=function(){
 	return  getQueryVariable("nb");
 	}
+    $scope.station_name=function(){
+	return  Number(getQueryVariable("id"));
+	}
+    
+    $scope.report = function(idStation,numberOfBike) {
+        $scope.reported = 'ID de la station: ' + idStation + ' et nombre de vélos reportés cassés: ' +numberOfBike;
+        console.log([idStation,numberOfBike]);
+        //PrelibAPI.report(idStation,numberOfBike);
+    }
 
 	$scope.items = [
 		{ id: 1 },

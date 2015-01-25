@@ -31,6 +31,20 @@ app.run(function($ionicPlatform) {
   });
 })
 
+app.factory('PrelibAPI', function($http) {
+	var stations=[];
+
+	return {
+		report: function(stationName,numberOfBike){
+			return $http({
+    url: 'prelib-api.herokuapp.com', 
+    method: "POST",
+    params: {stationName:stationName, numberOfBike:numberOfBike}
+    })
+		}
+	}
+})
+
 app.factory('VelibAPI', function($http) {
 	var stations=[];
 
@@ -45,15 +59,29 @@ app.factory('VelibAPI', function($http) {
 	}
 })
 
-app.controller('StoreController', function($scope,$http,VelibAPI){
+app.factory('$localstorage', ['$window', function($window) {
+  return {
+    set: function(key, value) {
+      $window.localStorage[key] = value;
+    },
+    get: function(key, defaultValue) {
+      return $window.localStorage[key] || defaultValue;
+    },
+    setObject: function(key, value) {
+      $window.localStorage[key] = JSON.stringify(value);
+    },
+    getObject: function(key) {
+      return JSON.parse($window.localStorage[key]);
+    }
+  }
+}]);
 
+app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage){
+    
+    
     
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-
-    VelibAPI.getStationsfromAPI().success(function(data){
-        getNearestStation(data);
-    });
         
 		var getNearestStation = function(data) {
 			$scope.stations = data;
@@ -65,6 +93,23 @@ app.controller('StoreController', function($scope,$http,VelibAPI){
 			   $scope.stations[i].distance = distanceToStation;
 			}
 		}
+        
+        var date = new Date().getTime();
+        var last_connection = $localstorage.getObject('last_connection');
+        $localstorage.setObject('last_connection',date);
+        var diff = date - last_connection;
+        //console.log(diff/1000);
+
+        if (diff < 30000){
+            var data = JSON.parse($localstorage.get('stations'));
+            getNearestStation(data);
+        }
+        else {
+            VelibAPI.getStationsfromAPI().success(function(data){
+                $localstorage.setObject('stations',data);
+                getNearestStation(data);
+            });
+        }
 		
 	};
 

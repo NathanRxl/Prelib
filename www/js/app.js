@@ -9,16 +9,6 @@ var app = angular.module('starter', ['ionic'])
 
 //A remplacer par une fonction angular directement
 //On peut avec angular utiliser des 'views' ce qui permet de naviguer dans la même page et ainsi avoir toujours accès aux variables
-function getQueryVariable(variable) 
-{      
-        var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
-}
 
 app.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -55,7 +45,6 @@ app.factory('PrelibAPI', function($http) {
 })
 
 app.factory('VelibAPI', function($http) {
-	var stations=[];
 
 	return {
 		getStationsfromAPI: function(){
@@ -85,10 +74,38 @@ app.factory('$localstorage', ['$window', function($window) {
   }
 }]);
 
-app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage,PrelibAPI){
-    
-    
-    
+app.factory('LoaderService', function($rootScope, $ionicLoading) {
+  return {
+        show : function() {
+
+            $rootScope.loading = $ionicLoading.show({
+
+              // The text to display in the loading indicator
+              content: '<i class="icon ion-looping"></i> Loading',
+
+              // The animation to use
+              animation: 'fade-in',
+
+              // Will a dark overlay or backdrop cover the entire view
+              showBackdrop: true,
+
+              // The maximum width of the loading indicator
+              // Text will be wrapped if longer than maxWidth
+              maxWidth: 200,
+
+              // The delay in showing the indicator
+              showDelay: 10
+            });
+        },
+
+        hide : function(){
+            $rootScope.loading.hide();
+        }
+    }
+});
+
+app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading ){
+    LoaderService.show();
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
@@ -109,14 +126,21 @@ app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage,P
         $localstorage.setObject('last_connection',date);
         var diff = date - last_connection;
 
-        if (diff < 20000){
+        if (diff < 10000){
+            console.log(diff/1000);
             $scope.stations = JSON.parse($localstorage.get('stations'));
+            $ionicLoading.hide();
             //console.log($scope.stations);
-            //getNearestStation(data);
+        }
+        else if(diff < 30000){
+            console.log(diff/1000);
+            var data = JSON.parse($localstorage.get('stations'));
+            $ionicLoading.hide();
+            getNearestStation(data);
         }
         else {
             VelibAPI.getStationsfromAPI().success(function(data){
-                
+                $ionicLoading.hide();
                 getNearestStation(data);
             });
         }
@@ -131,8 +155,21 @@ app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage,P
 	}
 
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+});
+ 
+app.controller('ReportController', function($scope,PrelibAPI){
     
-	$scope.available_bike=function(){
+    function getQueryVariable(variable) {      
+        var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+    }
+    
+    $scope.available_bike=function(){
 	return  getQueryVariable("nb");
 	}
     $scope.station_name=function(){
@@ -144,8 +181,8 @@ app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage,P
         console.log([idStation,numberOfBike]);
         //PrelibAPI.report(idStation,numberOfBike);
     }
-
-	$scope.items = [
+    
+    $scope.items = [
 		{ id: 1 },
 		{ id: 2 },
 		{ id: 3 },
@@ -196,14 +233,15 @@ app.controller('StoreController', function($scope,$http,VelibAPI,$localstorage,P
 		{ id: 48 },
 		{ id: 49 },
 		{ id: 50 } ];
- });
- 
+});
+
+/*
 app.directive("stationName", function() {
     return {
       restrict: 'E',
       templateUrl: "templates/station-name.html"
     };
-});
+});*/
                                                                                                         
 var app = angular.module('myApp', ['ionic']);
 app.config(function($stateProvider) {

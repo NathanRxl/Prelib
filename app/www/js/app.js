@@ -105,8 +105,8 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
 });
 
 app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading ){
-    LoaderService.show();
 	var onGeolocationSuccess = function(position) {
+            LoaderService.show();
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
 		var getNearestStation = function(data) {

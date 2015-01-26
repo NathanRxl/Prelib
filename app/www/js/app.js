@@ -69,7 +69,11 @@ app.factory('$localstorage', ['$window', function($window) {
       $window.localStorage[key] = JSON.stringify(value);
     },
     getObject: function(key) {
+        if ($window.localStorage[key]==undefined) {
+            return null; }
+        else {
       return JSON.parse($window.localStorage[key]);
+        }
     }
   }
 }]);
@@ -104,9 +108,9 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
     }
 });
 
-app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading ){
+app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window ){
+    LoaderService.show();
 	var onGeolocationSuccess = function(position) {
-            //LoaderService.show();
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
 		var getNearestStation = function(data) {
@@ -125,22 +129,22 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
         var last_connection = $localstorage.getObject('last_connection');
         $localstorage.setObject('last_connection',date);
         var diff = date - last_connection;
-
-        if (diff < 10000){
+        //console.log($localstorage.getObject('test'));
+        if (last_connection != null && diff < 10000){
             console.log(diff/1000);
             $scope.stations = JSON.parse($localstorage.get('stations'));
-            //$ionicLoading.hide();
+            $ionicLoading.hide();
             //console.log($scope.stations);
         }
-        else if(diff < 30000){
+        else if(last_connection != null && diff < 30000){
             console.log(diff/1000);
             var data = JSON.parse($localstorage.get('stations'));
-            //$ionicLoading.hide();
+            $ionicLoading.hide();
             getNearestStation(data);
         }
         else {
             VelibAPI.getStationsfromAPI().success(function(data){
-                //$ionicLoading.hide();
+                $ionicLoading.hide();
                 getNearestStation(data);
             });
         }

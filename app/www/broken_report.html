@@ -23,16 +23,14 @@
 		<script src="js/app.js"></script>
 	</head>
 
-	<body ng-app="starter" ng-controller="StoreController">
+	<body ng-app="starter" ng-controller="ReportController">
 		<ion-header-bar class="bar-positive">
 			<a href="index.html"> <button class="button"> Précédent </button> </a>
 			<h1 class="title">Nombre de vélos cassés</h1>
 		</ion-header-bar>
 
 		<ion-content>
-			<a href="http://www.google.com" style="text-decoration:none">
-			<ion-item ng-repeat="item in items | limitTo:  available_bike()"> {{ item.id }} </ion-item>
-			</a>
+            <ion-item ng-repeat="item in items | limitTo:  available_bike()" ng-click="report(station_name(),item.id)"> {{ item.id }} </ion-item>
 		</ion-content>
 	</body>
 </html>

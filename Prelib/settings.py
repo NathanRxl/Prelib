@@ -60,11 +60,11 @@ WSGI_APPLICATION = 'Prelib.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ddmd6mjkicbq06',
-        'USER': 'kfpdtdialmmmrk',
-        'PASSWORD': 'ZDysTB_GMbn7d2Z_HOsKwXaNdD',
-        'HOST': 'ec2-54-243-51-102.compute-1.amazonaws.com',
-        'PORT': '5432',
+        'NAME': 'd3deu9ap028prb',
+        'USER': 'bdsnrribkctioj',
+        'PASSWORD': '_p045-cdIKGxl_6uJHSdN_-1PB',
+        'HOST': 'ec2-50-17-233-228.compute-1.amazonaws.com',
+        'PORT': 5432,
     }
 }
 

@@ -104,6 +104,10 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
 
 app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window ){
     LoaderService.show();
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 50028a1baa25af003616600c88279e263c1db65a
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
@@ -117,6 +121,10 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 			   $scope.stations[i].distance = distanceToStation;
 			}
             $localstorage.setObject('stations',data);
+<<<<<<< HEAD
+=======
+            console.log('saving station data');
+>>>>>>> 50028a1baa25af003616600c88279e263c1db65a
 		}
         
         var date = new Date().getTime();
@@ -124,7 +132,11 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
         $localstorage.setObject('last_connection',date);
         var diff = date - last_connection;
         //console.log($localstorage.getObject('test'));
+<<<<<<< HEAD
         if (last_connection != null && diff < 10000){
+=======
+        if (last_connection != null && diff < 5000){
+>>>>>>> 50028a1baa25af003616600c88279e263c1db65a
             console.log(diff/1000);
             $scope.stations = JSON.parse($localstorage.get('stations'));
             $ionicLoading.hide();
@@ -142,6 +154,19 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
                 getNearestStation(data);
             });
         }
+<<<<<<< HEAD
+=======
+        
+       /* $scope.doRefresh = function() {
+    VelibAPI.getStationsfromAPI().success(function(data){
+                getNearestStation(data);
+            })
+     .finally(function() {
+       // Stop the ion-refresher from spinning
+       $scope.$broadcast('scroll.refreshComplete');
+     });
+    };*/
+>>>>>>> 50028a1baa25af003616600c88279e263c1db65a
 		
 	};
 
@@ -167,6 +192,28 @@ app.controller('ReportController', function($scope,PrelibAPI){
        return(false);
     }
     
+<<<<<<< HEAD
+=======
+    $scope.doRefresh = function() {
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+        $scope.$broadcast('scroll.refreshComplete');
+    };
+    
+});
+ 
+app.controller('ReportController', function($scope,PrelibAPI){
+    
+    function getQueryVariable(variable) {      
+        var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+    }
+    
+>>>>>>> 50028a1baa25af003616600c88279e263c1db65a
     $scope.available_bike=function(){
 	return  getQueryVariable("nb");
 	}

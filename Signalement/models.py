@@ -7,6 +7,7 @@ class Global(models.Model):
     station_loss = models.IntegerField('Broken bikes',default=0)
     def __str__(self):
         return self.station_name
+
     
     
     

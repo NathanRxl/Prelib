@@ -32,7 +32,6 @@
 		<ion-content>
 			<div ng-controller="StationsController as store">
 					<div class="list">
-						<div class="item item-button-right">
 							<ion-list>
 								<ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : 3">
 								
@@ -48,7 +47,6 @@
 									
 								</ion-item>
 							</ion-list>
-						</div>
 					</div>
 			</div>
 		</ion-content>	

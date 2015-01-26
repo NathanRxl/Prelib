@@ -175,8 +175,12 @@ app.controller('ReportController', function($scope,PrelibAPI){
 	}
     
     $scope.report = function(idStation,numberOfBike) {
-        $scope.reported = 'ID de la station: ' + idStation + ' et nombre de vélos reportés cassés: ' +numberOfBike;
         console.log([idStation,numberOfBike]);
+        if (numberOfBike==1){
+        alert("Merci d'avoir reporté un vélo !"); }
+        else if (numberOfBike>1){
+        alert("Merci d'avoir reporté "+numberOfBike+" vélos !");
+        }
         //PrelibAPI.report(idStation,numberOfBike);
     }
     

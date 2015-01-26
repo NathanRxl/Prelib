@@ -31,12 +31,14 @@
 		
 		<ion-content>
 			<div ng-controller="StationsController as store">
-
+                <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
+					<div class="list">
 							<ion-list>
+                                
 								<ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : 3">
-								
-									{{station.name.slice(8).split("(")[0]}}  
-								
+								    
+									{{station.name.slice(8).split("(")[0]}}
+								    
 									<button class="button button-outline button-positive button-small"> 
 									{{station.available_bikes}} / {{station.bike_stands}}
 									</button>	
@@ -47,6 +49,8 @@
 									
 								</ion-item>
 							</ion-list>
+					</div>
+			</div>
 		</ion-content>	
 	</ion-pane>
   </body>

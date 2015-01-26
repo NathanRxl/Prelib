@@ -1,16 +1,14 @@
-/home/sources_prelib/platforms/android/ant-build/classes.dex : \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$1.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$2.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$3.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/CordovaApp.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionicframework/prelib/CordovaApp.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionicframework/starter/BuildConfig.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionicframework/starter/CordovaApp.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionicframework/starter/R$attr.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionicframework/starter/R$drawable.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionicframework/starter/R$string.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionicframework/starter/R$xml.class \
-/home/sources_prelib/platforms/android/ant-build/classes/com/ionicframework/starter/R.class \
-/home/sources_prelib/platforms/android/ant-build/classes/org/apache/cordova/device/Device.class \
-/home/sources_prelib/platforms/android/ant-build/dexedLibs/classes-376f7e9f09a37aea0ae4586e34d4cc96.jar \
+/vagrant/Prelib/platforms/android/ant-build/classes.dex : \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$1.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$2.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$3.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/BuildConfig.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/CordovaApp.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R$attr.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R$drawable.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R$string.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R$xml.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R.class \
+/vagrant/Prelib/platforms/android/ant-build/classes/org/apache/cordova/device/Device.class \
+/vagrant/Prelib/platforms/android/ant-build/dexedLibs/classes-3711dc658969a90f1dbd69923a77bc5a.jar \

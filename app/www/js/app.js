@@ -28,7 +28,7 @@ app.factory('PrelibAPI', function($http) {
 	return {
 		report: function(stationName,numberOfBike){
 			return $http({
-    url: 'prelib-api.herokuapp.com/report', 
+    url: 'https://prelib-api.herokuapp.com', 
     method: "POST",
     params: {stationName:stationName, numberOfBike:numberOfBike}
     })
@@ -104,6 +104,7 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
 
 app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window ){
     LoaderService.show();
+    
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
@@ -117,6 +118,7 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 			   $scope.stations[i].distance = distanceToStation;
 			}
             $localstorage.setObject('stations',data);
+            console.log('saving station data');
 		}
         
         var date = new Date().getTime();
@@ -124,7 +126,7 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
         $localstorage.setObject('last_connection',date);
         var diff = date - last_connection;
         //console.log($localstorage.getObject('test'));
-        if (last_connection != null && diff < 10000){
+        if (last_connection != null && diff < 5000){
             console.log(diff/1000);
             $scope.stations = JSON.parse($localstorage.get('stations'));
             $ionicLoading.hide();
@@ -142,6 +144,16 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
                 getNearestStation(data);
             });
         }
+        
+       /* $scope.doRefresh = function() {
+    VelibAPI.getStationsfromAPI().success(function(data){
+                getNearestStation(data);
+            })
+     .finally(function() {
+       // Stop the ion-refresher from spinning
+       $scope.$broadcast('scroll.refreshComplete');
+     });
+    };*/
 		
 	};
 
@@ -153,6 +165,12 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 	}
 
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+    
+    $scope.doRefresh = function() {
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+        $scope.$broadcast('scroll.refreshComplete');
+    };
+    
 });
  
 app.controller('ReportController', function($scope,PrelibAPI){
@@ -176,12 +194,19 @@ app.controller('ReportController', function($scope,PrelibAPI){
     
     $scope.report = function(idStation,numberOfBike) {
         console.log([idStation,numberOfBike]);
+        PrelibAPI.report(idStation,numberOfBike).success(function(data){
+            console.log('POST resquest successfull');
+            console.log(data);
+        })
+        .error(function(data){
+            console.log('POST request failure');
+            console.log(data);
+        });
         if (numberOfBike==1){
         alert("Merci d'avoir reporté un vélo !"); }
         else if (numberOfBike>1){
         alert("Merci d'avoir reporté "+numberOfBike+" vélos !");
         }
-        //PrelibAPI.report(idStation,numberOfBike);
     }
     
     $scope.items = [

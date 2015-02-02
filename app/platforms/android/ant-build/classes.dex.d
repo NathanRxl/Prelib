@@ -1,14 +1,14 @@
-/vagrant/Prelib/platforms/android/ant-build/classes.dex : \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$1.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$2.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$3.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/BuildConfig.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/CordovaApp.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R$attr.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R$drawable.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R$string.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R$xml.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/com/ionicframework/myapp693856/R.class \
-/vagrant/Prelib/platforms/android/ant-build/classes/org/apache/cordova/device/Device.class \
-/vagrant/Prelib/platforms/android/ant-build/dexedLibs/classes-3711dc658969a90f1dbd69923a77bc5a.jar \
+/home/prelibclient/platforms/android/ant-build/classes.dex : \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$1.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$2.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard$3.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionic/keyboard/IonicKeyboard.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionicframework/prelib318140/BuildConfig.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionicframework/prelib318140/CordovaApp.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionicframework/prelib318140/R$attr.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionicframework/prelib318140/R$drawable.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionicframework/prelib318140/R$string.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionicframework/prelib318140/R$xml.class \
+/home/prelibclient/platforms/android/ant-build/classes/com/ionicframework/prelib318140/R.class \
+/home/prelibclient/platforms/android/ant-build/classes/org/apache/cordova/device/Device.class \
+/home/prelibclient/platforms/android/ant-build/dexedLibs/classes-185ce9e1712945e55dedba6798fa7f34.jar \

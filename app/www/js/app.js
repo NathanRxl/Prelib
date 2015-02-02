@@ -28,7 +28,7 @@ app.factory('PrelibAPI', function($http) {
 	return {
 		report: function(stationName,numberOfBike){
 			return $http({
-    url: 'https://prelib-api.herokuapp.com', 
+    url: 'prelib-api.herokuapp.com/report', 
     method: "POST",
     params: {stationName:stationName, numberOfBike:numberOfBike}
     })
@@ -90,7 +90,7 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
               showBackdrop: true,
               // The maximum width of the loading indicator
               // Text will be wrapped if longer than maxWidth
-              maxWidth: 200,
+              maxWidth: 400,
               // The delay in showing the indicator
               showDelay: 0
             });
@@ -104,7 +104,6 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
 
 app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window ){
     LoaderService.show();
-    
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
@@ -118,7 +117,6 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 			   $scope.stations[i].distance = distanceToStation;
 			}
             $localstorage.setObject('stations',data);
-            console.log('saving station data');
 		}
         
         var date = new Date().getTime();
@@ -126,7 +124,7 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
         $localstorage.setObject('last_connection',date);
         var diff = date - last_connection;
         //console.log($localstorage.getObject('test'));
-        if (last_connection != null && diff < 5000){
+        if (last_connection != null && diff < 10000){
             console.log(diff/1000);
             $scope.stations = JSON.parse($localstorage.get('stations'));
             $ionicLoading.hide();
@@ -144,16 +142,6 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
                 getNearestStation(data);
             });
         }
-        
-       /* $scope.doRefresh = function() {
-    VelibAPI.getStationsfromAPI().success(function(data){
-                getNearestStation(data);
-            })
-     .finally(function() {
-       // Stop the ion-refresher from spinning
-       $scope.$broadcast('scroll.refreshComplete');
-     });
-    };*/
 		
 	};
 
@@ -170,7 +158,6 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
         navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
         $scope.$broadcast('scroll.refreshComplete');
     };
-    
 });
  
 app.controller('ReportController', function($scope,PrelibAPI){

@@ -12,7 +12,7 @@
     <link href="css/ionic.app.css" rel="stylesheet">
     -->
     <!-- Google maps api js -->
-    <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false&libraries=geometry"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry"></script>
     <!-- ionic/angularjs js -->
     <script src="lib/ionic/js/ionic.bundle.js"></script>
 
@@ -25,31 +25,29 @@
   
   <body ng-app="starter">
     <ion-pane>
-		<ion-header-bar class="bar-positive">
+		<ion-header-bar class="bar-energized">
 			<h1 class="title">Prelib'</h1>
 		</ion-header-bar>
 		
 		<ion-content>
 			<div ng-controller="StationsController as store">
-                <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
-					<div class="list">
+					 <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
 							<ion-list>
-                                
+							 <div class="list">
 								<ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : 3">
-								    
-									{{station.name.slice(8).split("(")[0]}}
-								    
-									<button class="button button-outline button-positive button-small"> 
-									{{station.available_bikes}} / {{station.bike_stands}}
-									</button>	
-									&nbsp;
-									<a href="broken_report.html?nb={{station.available_bikes}}&id={{station.number}}">
-									<button class="button button-positive button-small"><i class="icon ion-alert"></i></button>
-									</a>
+							
+							 <div class="item-button-right">	
+									{{station.name.slice(8).split("(")[0]}}  
+									<span class="item-note">
+										{{station.available_bikes}} / {{station.bike_stands}}
+									</span>
 									
+									<a button class="button button-energized button-small" href="broken_report.html?nb={{station.available_bikes}}&id={{station.number}}" ><i class="icon ion-alert"></i></button>
+									</a>
+							</div></div>
 								</ion-item>
 							</ion-list>
-					</div>
+					
 			</div>
 		</ion-content>	
 	</ion-pane>

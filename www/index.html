@@ -31,7 +31,7 @@
 		
 		<ion-content>
 			<div ng-controller="StationsController as store">
-					
+					 <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
 							<ion-list>
 							 <div class="list">
 								<ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : 3">
@@ -45,7 +45,7 @@
 									<a button class="button button-energized button-small" href="broken_report.html?nb={{station.available_bikes}}&id={{station.number}}" ><i class="icon ion-alert"></i></button>
 									</a>
 							</div></div>
-								</ion-item
+								</ion-item>
 							</ion-list>
 					
 			</div>

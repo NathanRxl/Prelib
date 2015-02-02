@@ -90,7 +90,7 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
               showBackdrop: true,
               // The maximum width of the loading indicator
               // Text will be wrapped if longer than maxWidth
-              maxWidth: 200,
+              maxWidth: 400,
               // The delay in showing the indicator
               showDelay: 0
             });
@@ -153,6 +153,11 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 	}
 
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+    
+    $scope.doRefresh = function() {
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+        $scope.$broadcast('scroll.refreshComplete');
+    };
 });
  
 app.controller('ReportController', function($scope,PrelibAPI){
@@ -176,12 +181,19 @@ app.controller('ReportController', function($scope,PrelibAPI){
     
     $scope.report = function(idStation,numberOfBike) {
         console.log([idStation,numberOfBike]);
+        PrelibAPI.report(idStation,numberOfBike).success(function(data){
+            console.log('POST resquest successfull');
+            console.log(data);
+        })
+        .error(function(data){
+            console.log('POST request failure');
+            console.log(data);
+        });
         if (numberOfBike==1){
         alert("Merci d'avoir reporté un vélo !"); }
         else if (numberOfBike>1){
         alert("Merci d'avoir reporté "+numberOfBike+" vélos !");
         }
-        //PrelibAPI.report(idStation,numberOfBike);
     }
     
     $scope.items = [

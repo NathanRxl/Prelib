@@ -31,21 +31,23 @@
 		
 		<ion-content>
 			<div ng-controller="StationsController as store">
+					
 							<ion-list>
+							 <div class="list">
 								<ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : 3">
-								
+							
+							 <div class="item-button-right">	
 									{{station.name.slice(8).split("(")[0]}}  
-								
-									<button class="button button-outline button-positive button-small"> 
-									{{station.available_bikes}} / {{station.bike_stands}}
-									</button>	
-									&nbsp;
-									<a href="broken_report.html?nb={{station.available_bikes}}&id={{station.number}}">
-									<button class="button button-positive button-small"><i class="icon ion-alert"></i></button>
-									</a>
+									<span class="item-note">
+										{{station.available_bikes}} / {{station.bike_stands}}
+									</span>
 									
-								</ion-item>
+									<a button class="button button-positive button-small" href="broken_report.html?nb={{station.available_bikes}}&id={{station.number}}" ><i class="icon ion-alert"></i></button>
+									</a>
+							</div></div>
+								</ion-item
 							</ion-list>
+					
 			</div>
 		</ion-content>	
 	</ion-pane>

@@ -1,7 +1,10 @@
 from django.shortcuts import render
 
 import django.http
+import HttpRequest
 from Signalement.models import Global
+
+#request = HttpRequest.REQUEST
 
 #Insert a row in the table Global with an instance of global
 def create_report(request):

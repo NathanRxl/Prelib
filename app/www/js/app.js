@@ -28,7 +28,7 @@ app.factory('PrelibAPI', function($http) {
 	return {
 		report: function(stationName,numberOfBike){
 			return $http({
-    url: 'prelib-api.herokuapp.com/report', 
+    url: 'prelib-api.herokuapp.com/create_report', 
     method: "POST",
     params: {stationName:stationName, numberOfBike:numberOfBike}
     })

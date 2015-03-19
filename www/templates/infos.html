@@ -34,7 +34,7 @@
 					 <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
 							<ion-list>
 							 <div class="list">
-								<ion-item  ng-repeat="station in stations | orderBy:'distance' | limitTo : 3" href="broken_report.html?nb={{station.available_bikes}}&id={{station.number}}">
+								<ion-item  ng-repeat="station in stations | orderBy:'distance' | limitTo : 3">
 							
 							 <div class="item-button-right">	
 									{{station.name.slice(8).split("(")[0]}}  
@@ -45,8 +45,8 @@
 										{{station.available_bikes}} / {{station.bike_stands}}
 									</span>
 									
-									<!--<a button class="button button-energized button-small" href="broken_report.html?nb={{station.available_bikes}}&id={{station.number}}" ><i class="icon ion-alert"></i></button>
-									</a>-->
+									<a button class="button button-energized button-small" href="broken_report.html?nb={{station.available_bikes}}&id={{station.number}}" ><i class="icon ion-alert"></i></button>
+									</a>
 							</div>
 								</ion-item>
                                  </div>

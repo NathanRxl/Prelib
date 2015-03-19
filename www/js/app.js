@@ -213,7 +213,7 @@ app.directive("stationName", function() {
 });*/
                                                                                                         
 var app = angular.module('myApp', ['ionic']);
-app.config(function($stateProvider) {
+app.config(function($stateProvider,$urlRouterProvider) {
   $stateProvider
   .state('index', {
     url: '/',
@@ -221,6 +221,8 @@ app.config(function($stateProvider) {
   })
   .state('infos', {
     url: '/infos',
-    templateUrl: 'infos.html'
+    templateUrl: 'templates/infos.html',
+    controller: "ReportController"
   });
+    $urlRouterProvider.otherwise('/');
 });                                                                                                                    

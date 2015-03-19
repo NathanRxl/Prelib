@@ -160,7 +160,18 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
     };
 });
  
-app.controller('ReportController', function($scope,PrelibAPI){
+app.controller('ReportController', function($scope,$stateParams,PrelibAPI){
+    
+    // var test = $stateParams.stationId;
+    
+    $scope.getStationRankFromID=function(id){
+        for (var i=0; i<$scope.stations.length; i++) {
+                if ($scope.stations[i].number==id){
+                    return i;
+			}
+        return -1;
+	}
+    
     
     function getQueryVariable(variable) {      
         var query = window.location.search.substring(1);
@@ -215,13 +226,13 @@ app.directive("stationName", function() {
 var app = angular.module('myApp', ['ionic']);
 app.config(function($stateProvider,$urlRouterProvider) {
   $stateProvider
-  .state('index', {
+  .state('home', {
     url: '/',
     templateUrl: 'index.html'
   })
-  .state('infos', {
-    url: '/infos',
-    templateUrl: 'templates/infos.html',
+  .state('station', {
+    url: '/station:stationId',
+    templateUrl: 'templates/station.html',
     controller: "ReportController"
   });
     $urlRouterProvider.otherwise('/');

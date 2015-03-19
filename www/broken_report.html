@@ -30,7 +30,7 @@
 		</ion-header-bar>
 
 		<ion-content>
-            <ion-item ng-repeat="item in items | limitTo:  available_bike()" ng-click="report(station_name(),item.id)"> {{ item.id }} </ion-item>
+            <ion-item ng-repeat="item in items | limitTo:  available_bike()" ng-click="report(station_name(),item)"> {{ item }} </ion-item>
 		</ion-content>
 	</body>
 </html>

@@ -37,7 +37,7 @@
       <ion-view title="Prelib'">
         <ion-content>
           <ion-list>
-            <ion-item ng-repeat="station in todos" ui-sref='station({stationID: station.number})'>
+            <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : 3" ui-sref='station({stationID: station.number})'>
         
             <div class="item-button-right">	
             {{station.name.slice(8).split("(")[0]}} 
@@ -56,8 +56,8 @@
       
         <ion-content>
             <ion-item >{{"Adresse: "+station.address}} </ion-item>
-            <ion-item >{{"Distance: "+station.distance}} </ion-item>
-            <ion-item ng-repeat="item in items | limitTo:  station.available_bikes"> {{ item }} </ion-item>
+            <ion-item >{{"Distance: "+station.distance.toFixed(0)+" m"}} </ion-item>
+            <ion-item ng-repeat="item in items | limitTo:  station.available_bikes" ng-click="report(station.number,item)"> {{ item }} </ion-item>
         </ion-content>
       </ion-view>
     </script>

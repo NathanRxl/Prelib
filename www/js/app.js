@@ -112,7 +112,7 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
 app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
     LoaderService.show();
     
-    $scope.todos = stations
+    $scope.stations = stations;
     
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -134,13 +134,13 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
         $localstorage.setObject('last_connection',date);
         var diff = date - last_connection;
         //console.log($localstorage.getObject('test'));
-        if (last_connection != null && diff < 10000){
+        if (last_connection != null && diff < 30000){
             console.log(diff/1000);
             $scope.stations = JSON.parse($localstorage.get('stations'));
             $ionicLoading.hide();
             //console.log($scope.stations);
         }
-        else if(last_connection != null && diff < 30000){
+        else if(last_connection != null && diff < 60000){
             console.log(diff/1000);
             var data = JSON.parse($localstorage.get('stations'));
             $ionicLoading.hide();
@@ -152,7 +152,7 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
                 getNearestStation(data);
             });
         }
-		
+        
 	};
 
 	function onError(error) {
@@ -170,22 +170,9 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
     };
 });
  
-app.controller('ReportController', function($scope,$stateParams,PrelibAPI,station){
+app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,station){
     
-    $scope.station = station
-    // var test = $stateParams.stationId;
-    
-    /*$scope.getStationRankFromID=function(id){
-        for (var i=0; i<$scope.stations.length; i++) {
-                if ($scope.stations[i].number==id){
-                    return i;
-			}
-        }
-        return -1;
-	}
-    $scope.name = $scope.stations[$scope.getStationRankFromID($scope.station_name())].name;*/
-
-   
+    $scope.station = station;
     
     function getQueryVariable(variable) {      
         var query = window.location.search.substring(1);
@@ -204,6 +191,17 @@ app.controller('ReportController', function($scope,$stateParams,PrelibAPI,statio
 	return  Number(getQueryVariable("id"));
 	}
     
+    function showAlert(numberOfBike) {
+        var text = "";
+        if (numberOfBike==1){text = "Merci d'avoir reporté un vélo";}
+        else if (numberOfBike>1){text = "Merci d'avoir reporté "+numberOfBike +" vélos";}
+       var alertPopup = $ionicPopup.alert({
+            title: "Prelib'",
+            template: text
+        });
+        alertPopup.then(function(res) {
+        });
+    };
     
     $scope.report = function(idStation,numberOfBike) {
         console.log([idStation,numberOfBike]);
@@ -215,11 +213,7 @@ app.controller('ReportController', function($scope,$stateParams,PrelibAPI,statio
             console.log('POST request failure');
             console.log(data);
         });
-        if (numberOfBike==1){
-        alert("Merci d'avoir reporté un vélo !"); }
-        else if (numberOfBike>1){
-        alert("Merci d'avoir reporté "+numberOfBike+" vélos !");
-        }
+        showAlert(numberOfBike);
     }
     
     var liste = new Array(50);
@@ -238,9 +232,11 @@ app.directive("stationName", function() {
     };
 });*/
                                                                                                         
-app.service('TodosService', function($q) {
+app.service('TodosService', function($q,$localstorage) {
+    var test = JSON.parse($localstorage.get('stations'));
   return {
-    stations: [
+      stations: test,
+    /*stations: [
       {
   "number": 41301,
   "contract_name" : "Paris",
@@ -275,7 +271,7 @@ app.service('TodosService', function($q) {
   "available_bikes": 5,
   "last_update": 10
 }
-    ],
+    ],*/
     getStations: function() {
       return this.stations
     },

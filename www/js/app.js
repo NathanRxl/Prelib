@@ -53,6 +53,13 @@ app.factory('VelibAPI', function($http) {
     method: "GET",
     params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
     })
+		},
+        getStationfromAPI: function(id){
+			return $http({
+    url: 'https://api.jcdecaux.com/vls/v1/stations/'+id, 
+    method: "GET",
+    params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
+    })
 		}
 	}
 })
@@ -102,8 +109,11 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
     }
 });
 
-app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window ){
+app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
     LoaderService.show();
+    
+    $scope.todos = stations
+    
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
@@ -160,18 +170,22 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
     };
 });
  
-app.controller('ReportController', function($scope,$stateParams,PrelibAPI){
+app.controller('ReportController', function($scope,$stateParams,PrelibAPI,station){
     
+    $scope.station = station
     // var test = $stateParams.stationId;
     
-    $scope.getStationRankFromID=function(id){
+    /*$scope.getStationRankFromID=function(id){
         for (var i=0; i<$scope.stations.length; i++) {
                 if ($scope.stations[i].number==id){
                     return i;
 			}
+        }
         return -1;
 	}
-    
+    $scope.name = $scope.stations[$scope.getStationRankFromID($scope.station_name())].name;*/
+
+   
     
     function getQueryVariable(variable) {      
         var query = window.location.search.substring(1);
@@ -189,6 +203,7 @@ app.controller('ReportController', function($scope,$stateParams,PrelibAPI){
     $scope.station_name=function(){
 	return  Number(getQueryVariable("id"));
 	}
+    
     
     $scope.report = function(idStation,numberOfBike) {
         console.log([idStation,numberOfBike]);
@@ -223,17 +238,79 @@ app.directive("stationName", function() {
     };
 });*/
                                                                                                         
-var app = angular.module('myApp', ['ionic']);
+app.service('TodosService', function($q) {
+  return {
+    stations: [
+      {
+  "number": 41301,
+  "contract_name" : "Paris",
+  "name": "41301 - CLEMANCEAU (NOGENT)",
+  "address": "2 AVENUE GEORGES CLEMENCEAU - 94130 NOGENT",
+  "position": {
+    "lat": 48.836125842982426,
+    "lng": 2.470375451268832
+  },
+  "banking": true,
+  "bonus": false,
+  "status": "OPEN",
+  "bike_stands": 30,
+  "available_bike_stands": 20,
+  "available_bikes": 10,
+  "last_update": 10
+},
+      {
+  "number": 41302,
+  "contract_name" : "Paris",
+  "name": "41302 - CHARLES DE GAULLE (NOGENT)",
+  "address": "FACE AU 60 AVENUE CHARLES DE GAULLES - 94130 NOGENT SUR MARNE",
+  "position": {
+    "lat": 48.83648112918176,
+    "lng": 2.479464268709081
+  },
+  "banking": true,
+  "bonus": false,
+  "status": "OPEN",
+  "bike_stands": 20,
+  "available_bike_stands": 15,
+  "available_bikes": 5,
+  "last_update": 10
+}
+    ],
+    getStations: function() {
+      return this.stations
+    },
+    getStation: function(todoId) {
+      var dfd = $q.defer()
+      this.stations.forEach(function(station) {
+        if (station.number == todoId) {
+            dfd.resolve(station)}
+      })
+      return dfd.promise
+    }
+  }
+})
+
 app.config(function($stateProvider,$urlRouterProvider) {
   $stateProvider
-  .state('home', {
-    url: '/',
-    templateUrl: 'index.html'
+  .state('stations', {
+    url: '/stations',
+    controller: 'StationsController',
+    templateUrl: 'stations.html',
+    resolve: {
+      stations: function(TodosService) {
+        return TodosService.getStations()
+      }
+    }
   })
   .state('station', {
-    url: '/station:stationId',
-    templateUrl: 'templates/station.html',
-    controller: "ReportController"
-  });
-    $urlRouterProvider.otherwise('/');
+    url: '/stations/:stationID',
+    controller: 'ReportController',
+    templateUrl: 'station.html',
+    resolve: {
+      station: function($stateParams, TodosService) {
+        return TodosService.getStation($stateParams.stationID)
+      }
+    }
+  })
+    $urlRouterProvider.otherwise('/stations');
 });                                                                                                                    

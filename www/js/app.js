@@ -116,7 +116,6 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
     
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        $localstorage.setObject('userPosition',$scope.userPosition);
         
 		var getNearestStation = function(data) {
 			$scope.stations = data;
@@ -174,10 +173,6 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,station){
     
     $scope.station = station;
-    $scope.userPosition = JSON.parse($localstorage.get('userPosition'));
-    var stationPosition = new google.maps.LatLng($scope.station.position.lat, $scope.station.position.lng);
-    var distanceToStation = google.maps.geometry.spherical.computeDistanceBetween($scope.userPosition, stationPosition);
-    $scope.station.distance = distanceToStation;
     
     function getQueryVariable(variable) {      
         var query = window.location.search.substring(1);
@@ -237,104 +232,57 @@ app.directive("stationName", function() {
     };
 });*/
                                                                                                         
-app.service('TodosService', function($q,$localstorage,$scope,VelibAPI) {
-    var stationsData = JSON.parse($localstorage.get('stations'));
-    
-   /* var date = new Date().getTime();
-    var last_connection = $localstorage.getObject('last_connection');
-    $localstorage.setObject('last_connection',date);
-    var diff = date - last_connection;
-    
-    var setAndComputeDistanceAllStations = function(data,userPosition) {
-        var stations = data;
-        var stationPosition;
-        var distanceToStation;
-        for (var i=0; i<$scope.stations.length; i++) {
-            stationPosition = new google.maps.LatLng(stations[i].position.lat, stations[i].position.lng);
-            distanceToStation = google.maps.geometry.spherical.computeDistanceBetween(userPosition, stationPosition);
-            stations[i].distance = distanceToStation;
-        }
-        $localstorage.setObject('stations',stations);
-        return stations;
-    }
-    
-    var onGeolocationSuccessAllStations = function(position) {
-		var userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        $localstorage.setObject('userPosition',userPosition);
-        $scope.stations = setAndComputeDistanceAllStations($scope.stations,userPosition);
-    }
-    
-    var onGeolocationSuccessOneStation = function(position,stationID) {
-		var userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        $localstorage.setObject('userPosition',userPosition);
-        $scope.stations = setAndComputeDistanceAllStations($scope.stations,userPosition);
-    }
-    
-    var getStationsFunction = function() {};
-    var getStationFunction = function(stationID) {};
-    
-    if (last_connection != null && diff < 30000){ //load stations data & distance from storage
-        getStationsFunction = = function(){
-           return JSON.parse($localstorage.get('stations'));
-        }
-        getStationFunction = function(stationID) {
-            var stations = JSON.parse($localstorage.get('stations'));
-            var dfd = $q.defer()
-            stations.forEach(function(station) {
-            if (station.number == stationID) {
-                dfd.resolve(station)}
-            })
-            return dfd.promise
-        }
-    }
-    
-    else if(last_connection != null && diff < 60000){ //load stations from storage data but compute distance
-        
-         getStationsFunction = = function(){
-             $scope.stations = JSON.parse($localstorage.get('stations'));
-             navigator.geolocation.getCurrentPosition(onGeolocationSuccessAllStations(), onError,{enableHighAccuracy: true});
-        }
-        
-        getStationFunction = function(stationID) {
-            var stations = JSON.parse($localstorage.get('stations'));
-            var dfd = $q.defer()
-            stations.forEach(function(station) {
-            if (station.number == stationID) {
-                dfd.resolve(station)}
-            })
-            var station = dfd.promise;
-            navigator.geolocation.getCurrentPosition(onGeolocationSuccessOneStation(stationID), onError,{enableHighAccuracy: true});
-        }
-    }
-    else { //download stations data & but compute distance
-            
-    }
-    
-    return {
-        getStations: getStationsFunction,
-        getStation: getStationFunction
-    }*/
-    
-    
+app.service('TodosService', function($q,$localstorage) {
+    var test = JSON.parse($localstorage.get('stations'));
   return {
+      stations: test,
+    /*stations: [
+      {
+  "number": 41301,
+  "contract_name" : "Paris",
+  "name": "41301 - CLEMANCEAU (NOGENT)",
+  "address": "2 AVENUE GEORGES CLEMENCEAU - 94130 NOGENT",
+  "position": {
+    "lat": 48.836125842982426,
+    "lng": 2.470375451268832
+  },
+  "banking": true,
+  "bonus": false,
+  "status": "OPEN",
+  "bike_stands": 30,
+  "available_bike_stands": 20,
+  "available_bikes": 10,
+  "last_update": 10
+},
+      {
+  "number": 41302,
+  "contract_name" : "Paris",
+  "name": "41302 - CHARLES DE GAULLE (NOGENT)",
+  "address": "FACE AU 60 AVENUE CHARLES DE GAULLES - 94130 NOGENT SUR MARNE",
+  "position": {
+    "lat": 48.83648112918176,
+    "lng": 2.479464268709081
+  },
+  "banking": true,
+  "bonus": false,
+  "status": "OPEN",
+  "bike_stands": 20,
+  "available_bike_stands": 15,
+  "available_bikes": 5,
+  "last_update": 10
+}
+    ],*/
     getStations: function() {
-      return stationsData;
+      return this.stations
     },
-    getStation: function(stationID) {
+    getStation: function(todoId) {
       var dfd = $q.defer()
       this.stations.forEach(function(station) {
-        if (station.number == stationID) {
+        if (station.number == todoId) {
             dfd.resolve(station)}
       })
       return dfd.promise
-    },
-    getStationByAPI: function(stationID) {
-          var dfd = $q.defer()
-          VelibAPI.getStationfromAPI(stationID).success(function(station){
-              dfd.resolve(station)
-          });
-          return dfd.promise
-      }
+    }
   }
 })
 
@@ -356,7 +304,7 @@ app.config(function($stateProvider,$urlRouterProvider) {
     templateUrl: 'station.html',
     resolve: {
       station: function($stateParams, TodosService) {
-        return TodosService.getStationByAPI($stateParams.stationID)
+        return TodosService.getStation($stateParams.stationID)
       }
     }
   })

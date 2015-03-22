@@ -109,9 +109,11 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
     }
 });
 
-app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window ){
+app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
     LoaderService.show();
-        
+    
+    $scope.stations = stations;
+    
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
@@ -168,24 +170,9 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
     };
 });
  
-app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage){
-        
-    function getQueryVariable(variable) {      
-        var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
-    }
+app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,station){
     
-    $scope.available_bike=function(){
-	return  getQueryVariable("nb");
-	}
-    $scope.station_name=function(){
-	return  Number(getQueryVariable("id"));
-	}
+    $scope.station = station;
     
     function showAlert(numberOfBike) {
         var text = "";
@@ -219,8 +206,47 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     $scope.items = liste;
     
 });
-
+                                                                                                        
+app.service('TodosService', function($q,$localstorage) {
+    var test = JSON.parse($localstorage.get('stations'));
+  return {
+      stations: test,
+      
+    getStations: function() {
+      return this.stations
+    },
+    getStation: function(todoId) {
+      var dfd = $q.defer()
+      this.stations.forEach(function(station) {
+        if (station.number == todoId) {
+            dfd.resolve(station)}
+      })
+      return dfd.promise
+    }
+  }
+})
 
 app.config(function($stateProvider,$urlRouterProvider) {
-  
+  $stateProvider
+  .state('stations', {
+    url: '/stations',
+    controller: 'StationsController',
+    templateUrl: 'stations.html',
+    resolve: {
+      stations: function(TodosService) {
+        return TodosService.getStations()
+      }
+    }
+  })
+  .state('station', {
+    url: '/stations/:stationID',
+    controller: 'ReportController',
+    templateUrl: 'station.html',
+    resolve: {
+      station: function($stateParams, TodosService) {
+        return TodosService.getStation($stateParams.stationID)
+      }
+    }
+  })
+    $urlRouterProvider.otherwise('/stations');
 });                                                                                                                    

@@ -4,8 +4,8 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 
-"use strict";
-var app = angular.module('starter', ['ionic'])
+'use strict';
+var app = angular.module('starter', ['ionic','$selectBox'])
 
 //A remplacer par une fonction angular directement
 //On peut avec angular utiliser des 'views' ce qui permet de naviguer dans la même page et ainsi avoir toujours accès aux variables
@@ -175,15 +175,14 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     $scope.station = station;
     
     function showAlert(numberOfBike) {
-        var text = "";
-        if (numberOfBike==1){text = "Merci d'avoir reporté un vélo";}
-        else if (numberOfBike>1){text = "Merci d'avoir reporté "+numberOfBike +" vélos";}
+        var textToDisplay = "";
+        if (numberOfBike==1){textToDisplay = "Merci d'avoir reporté un vélo";}
+        else if (numberOfBike>1){textToDisplay = "Merci d'avoir reporté "+numberOfBike +" vélos";}
        var alertPopup = $ionicPopup.alert({
             title: "Prelib'",
-            template: text
+            template: textToDisplay
         });
-        alertPopup.then(function(res) {
-        });
+        //alertPopup.then(function(res) {});
     };
     
     $scope.report = function(idStation,numberOfBike) {
@@ -200,10 +199,31 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     }
     
     var liste = new Array(50);
-    for (var i = 0; i < liste.length; i++) { 
-        liste[i]=i+1;
-    }
+    for (var i = 0; i < liste.length; i++) { liste[i]=i+1; }
     $scope.items = liste;
+    
+    var devList = new Array(50);
+    for (var i = 0; i < devList.length; i++) { devList[i]={name: i+1, id: i+1}; }
+    $scope.devList = devList;
+    
+    
+   
+    var isIOS = ionic.Platform.isIOS();
+    var isAndroid = ionic.Platform.isAndroid();
+    var isWindowsPhone = ionic.Platform.isWindowsPhone();
+    
+    //var mapsUrl = "http://maps.google.com?q="+$scope.station.address;
+    //var mapsUrl = "http://maps.google.com?q="+$scope.station.position.lat+","+$scope.station.position.lng;
+    //var mapsUrl = "http://www.google.com/maps/place/"+$scope.station.position.lat+","+$scope.station.position.lng+"/@"+$scope.station.position.lat+","+$scope.station.position.lng+",17z";
+    //var mapsUrl = "http://google.com/maps/preview/@"+$scope.station.position.lat+","+$scope.station.position.lng+","+"18z";
+     
+    var mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;
+
+    if (isIOS) { mapsUrl = "https://maps.apple.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;}
+    else if (isAndroid) { mapsUrl = "geo:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
+    else if (isWindowsPhone) { mapsUrl = "maps:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
+    $scope.mapsUrl = mapsUrl;
+    console.log($scope.mapsUrl);
     
 });
                                                                                                         
@@ -249,4 +269,64 @@ app.config(function($stateProvider,$urlRouterProvider) {
     }
   })
     $urlRouterProvider.otherwise('/stations');
-});                                                                                                                    
+});          
+
+angular.module('$selectBox', [])
+    .directive('selectBox', function () {
+    return {
+        restrict: 'E',
+        require: ['ngModel', 'ngData', 'ngSelectedId', 'ngSelectedValue', '?ngTitle', 'ngiItemName', 'ngItemId'],
+        template: '<input class="selectInput" id="showed" type="text" ng-click="showSelectModal()" readonly/>' + '<span id="hidden" type="text" style="display: none;"></span>',
+        controller: function ($scope, $element, $attrs, $ionicModal, $parse) {
+            $scope.modal = {};
+
+            $scope.showSelectModal = function () {
+                var val = $parse($attrs.ngData);
+                $scope.data = val($scope);
+
+                $scope.modal.show();
+            };
+
+            $scope.closeSelectModal = function () {
+                $scope.modal.hide();
+            };
+
+            $scope.$on('$destroy', function (id) {
+                $scope.modal.remove();
+            });
+
+            //{{'Gift.modalTitle' | translate}}
+            $scope.modal = $ionicModal.fromTemplate('<ion-modal-view id="select">' + '<ion-header-bar>' + '<h1 class="title">' + $attrs.ngTitle + '</h1>' + ' <a ng-click="closeSelectModal()" class="button button-icon icon ion-close"></a>' + '</ion-header-bar>' + '<ion-content>' + '<ul class="list">' + '<li class="item" ng-click="clickItem(item)" ng-repeat="item in data" ng-bind-html="item[\'' + $attrs.ngItemName + '\']"></li>' + '</ul>' + ' </ion-content>' + '</ion-modal-view>', {
+                scope: $scope,
+                animation: 'slide-in-up'
+            });
+
+            $scope.clickItem = function (item) {
+                var index = $parse($attrs.ngSelectedId);
+                index.assign($scope.$parent, item[$attrs.ngItemId]);
+
+                var value = $parse($attrs.ngSelectedValue);
+                value.assign($scope.$parent, item[$attrs.ngItemName]);
+
+                $scope.closeSelectModal();
+            };
+        },
+        compile: function ($element, $attrs) {
+            var input = $element.find('input');
+            angular.forEach({
+                'name': $attrs.name,
+                'placeholder': $attrs.ngPlaceholder,
+                'ng-model': $attrs.ngSelectedValue
+            }, function (value, name) {
+                if (angular.isDefined(value)) {
+                    input.attr(name, value);
+                }
+            });
+
+            var span = $element.find('span');
+            if (angular.isDefined($attrs.ngSelectedId)) {
+                span.attr('ng-model', $attrs.ngSelectedId);
+            }
+        }
+    };
+});

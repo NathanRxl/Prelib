@@ -26,15 +26,12 @@
 	<body ng-app="starter" ng-controller="ReportController">
 		<ion-header-bar class="bar-energized">
 			<a href="index.html"> <button class="button"> Précédent </button> </a>
-			<h1 class="title">Nombre de vélos cassés</h1>
+			<h1 class="title">{{name}}</h1>
 		</ion-header-bar>
 
 		<ion-content>
-            <ion-item ng-repeat="item in items | limitTo:  available_bike()" ng-click="report(station_name(),item.id)"> {{ item.id }} </ion-item>
+            <ion-item ng-repeat="item in items | limitTo:  available_bike()" ng-click="report(station_name(),item)"> {{ item }} </ion-item>
 		</ion-content>
 	</body>
-</html>
-
-</body>
 
 </html>

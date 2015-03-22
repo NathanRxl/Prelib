@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 
-"use strict";
+'use strict';
 var app = angular.module('starter', ['ionic'])
 
 //A remplacer par une fonction angular directement
@@ -109,9 +109,11 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
     }
 });
 
-app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window ){
+app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
     LoaderService.show();
-        
+    
+    $scope.stations = stations;
+    
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
@@ -168,35 +170,19 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
     };
 });
  
-app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage){
-        
-    function getQueryVariable(variable) {      
-        var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
-    }
+app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,station){
     
-    $scope.available_bike=function(){
-	return  getQueryVariable("nb");
-	}
-    $scope.station_name=function(){
-	return  Number(getQueryVariable("id"));
-	}
+    $scope.station = station;
     
     function showAlert(numberOfBike) {
-        var text = "";
-        if (numberOfBike==1){text = "Merci d'avoir reporté un vélo";}
-        else if (numberOfBike>1){text = "Merci d'avoir reporté "+numberOfBike +" vélos";}
+        var textToDisplay = "";
+        if (numberOfBike==1){textToDisplay = "Merci d'avoir reporté un vélo";}
+        else if (numberOfBike>1){textToDisplay = "Merci d'avoir reporté "+numberOfBike +" vélos";}
        var alertPopup = $ionicPopup.alert({
             title: "Prelib'",
-            template: text
+            template: textToDisplay
         });
-        alertPopup.then(function(res) {
-        });
+        //alertPopup.then(function(res) {});
     };
     
     $scope.report = function(idStation,numberOfBike) {
@@ -213,14 +199,74 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     }
     
     var liste = new Array(50);
-    for (var i = 0; i < liste.length; i++) { 
-        liste[i]=i+1;
-    }
+    for (var i = 0; i < liste.length; i++) { liste[i]=i+1; }
     $scope.items = liste;
     
-});
+    
+   
+    var isIOS = ionic.Platform.isIOS();
+    var isAndroid = ionic.Platform.isAndroid();
+    var isWindowsPhone = ionic.Platform.isWindowsPhone();
+    
+    //var mapsUrl = "http://maps.google.com?q="+$scope.station.address;
+    //var mapsUrl = "http://maps.google.com?q="+$scope.station.position.lat+","+$scope.station.position.lng;
+    //var mapsUrl = "http://www.google.com/maps/place/"+$scope.station.position.lat+","+$scope.station.position.lng+"/@"+$scope.station.position.lat+","+$scope.station.position.lng+",17z";
+    //var mapsUrl = "http://google.com/maps/preview/@"+$scope.station.position.lat+","+$scope.station.position.lng+","+"18z";
+    
+    
+    var mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;
+    
+    
+    
 
+    if (isIOS) { mapsUrl = "https://maps.apple.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;}
+    else if (isAndroid) { mapsUrl = "geo:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
+    else if (isWindowsPhone) { mapsUrl = "maps:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
+    $scope.mapsUrl = mapsUrl;
+    console.log($scope.mapsUrl);
+    
+});
+                                                                                                        
+app.service('TodosService', function($q,$localstorage) {
+    var test = JSON.parse($localstorage.get('stations'));
+  return {
+      stations: test,
+      
+    getStations: function() {
+      return this.stations
+    },
+    getStation: function(todoId) {
+      var dfd = $q.defer()
+      this.stations.forEach(function(station) {
+        if (station.number == todoId) {
+            dfd.resolve(station)}
+      })
+      return dfd.promise
+    }
+  }
+})
 
 app.config(function($stateProvider,$urlRouterProvider) {
-  
+  $stateProvider
+  .state('stations', {
+    url: '/stations',
+    controller: 'StationsController',
+    templateUrl: 'stations.html',
+    resolve: {
+      stations: function(TodosService) {
+        return TodosService.getStations()
+      }
+    }
+  })
+  .state('station', {
+    url: '/stations/:stationID',
+    controller: 'ReportController',
+    templateUrl: 'station.html',
+    resolve: {
+      station: function($stateParams, TodosService) {
+        return TodosService.getStation($stateParams.stationID)
+      }
+    }
+  })
+    $urlRouterProvider.otherwise('/stations');
 });                                                                                                                    

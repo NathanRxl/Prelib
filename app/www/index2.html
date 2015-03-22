@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html ng-app="starter">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title>Prelib'</title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+    <!-- Google maps api js -->
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&amp;libraries=geometry"></script>
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app2.js"></script>
+  </head>
+
+  <body>
+    <ion-nav-bar class="bar-positive">
+      <ion-nav-back-button class="button-clear">
+        <i class="ion-arrow-left-c"></i> Back
+      </ion-nav-back-button>
+    </ion-nav-bar>
+    <ion-nav-view animation="slide-left-right"></ion-nav-view>
+
+    <script type="text/ng-template" id="stations.html">
+      <ion-view title="Prelib'">
+        <ion-content>
+          <ion-list>
+            <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : 3" ui-sref='station({stationID: station.number})'>
+            <div class="item-button-right">	
+            {{station.name.slice(8).split("(")[0]}} 
+                    <span class="item-note">{{" : "+station.distance.toFixed(0)+" m"}}</span>
+				    <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
+            </div>
+        </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script type="text/ng-template" id="station.html">
+      <ion-view title={{station.name.slice(8).split("(")[0]}}>
+        <ion-content>
+            <ion-item href = {{mapsUrl}}>{{"Adresse: "+station.address}} </ion-item>
+            <ion-item >{{"Distance: "+station.distance.toFixed(0)+" m"}} </ion-item>
+            <ion-item ng-repeat="item in items | limitTo:  station.available_bikes" ng-click="report(station.number,item)"> {{ item }} </ion-item>
+        </ion-content>
+      </ion-view>
+    </script>
+  </body>
+
+</html>
+
+

@@ -110,9 +110,10 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
 });
 
 app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
-    LoaderService.show();
-    
+    //LoaderService.show();
+    $scope.nbStationsToDisplay = 3;
     $scope.stations = stations;
+    
     
 	var onGeolocationSuccess = function(position) {
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -227,8 +228,21 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     
 });
                                                                                                         
-app.service('TodosService', function($q,$localstorage) {
+app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
+    LoaderService.show();
     var test = JSON.parse($localstorage.get('stations'));
+    //var test;
+    if ($localstorage.get('stations') != null) {
+        console.log("NOT NULL");
+        test = JSON.parse($localstorage.get('stations'));
+    }
+    else {
+    console.log("NULL");
+    VelibAPI.getStationsfromAPI().success(function(data){
+        test = data;
+    });
+    }
+    
   return {
       stations: test,
       

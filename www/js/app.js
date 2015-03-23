@@ -4,8 +4,8 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 
-"use strict";
-var app = angular.module('starter', ['ionic'])
+'use strict';
+var app = angular.module('starter', ['ionic','$selectBox'])
 
 //A remplacer par une fonction angular directement
 //On peut avec angular utiliser des 'views' ce qui permet de naviguer dans la même page et ainsi avoir toujours accès aux variables
@@ -109,53 +109,59 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
     }
 });
 
-app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window ){
-    LoaderService.show();
-        
-	var onGeolocationSuccess = function(position) {
-		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        
-		var getNearestStation = function(data) {
+app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
+    //LoaderService.show();
+    $scope.nbStationsToDisplay = 3;
+    $scope.stations = stations;
+    
+    var getNearestStation = function(data) {
 			$scope.stations = data;
 			var stationPosition;
 			var distanceToStation;
 			for (var i=0; i<$scope.stations.length; i++) {
-                stationPosition = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
+               stationPosition = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
 			   distanceToStation = google.maps.geometry.spherical.computeDistanceBetween($scope.userPosition, stationPosition);
 			   $scope.stations[i].distance = distanceToStation;
 			}
             $localstorage.setObject('stations',data);
 		}
+    
+	var onGeolocationSuccess = function(position) {
+		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
         var date = new Date().getTime();
         var last_connection = $localstorage.getObject('last_connection');
         $localstorage.setObject('last_connection',date);
         var diff = date - last_connection;
-        //console.log($localstorage.getObject('test'));
-        if (last_connection != null && diff < 30000){
+        if (last_connection != null && diff < 10000){
             console.log(diff/1000);
+            console.log("stations data load from storage");
             $scope.stations = JSON.parse($localstorage.get('stations'));
-            $ionicLoading.hide();
-            //console.log($scope.stations);
         }
-        else if(last_connection != null && diff < 60000){
+        else if(last_connection != null && diff < 20000){
             console.log(diff/1000);
+            console.log("stations data load from storage but distance recomputed");
             var data = JSON.parse($localstorage.get('stations'));
-            $ionicLoading.hide();
             getNearestStation(data);
         }
         else {
-            VelibAPI.getStationsfromAPI().success(function(data){
-                $ionicLoading.hide();
-                getNearestStation(data);
-            });
+            console.log("all recomputed");
+            VelibAPI.getStationsfromAPI().success(function(data){getNearestStation(data); });
         }
-        
+        $ionicLoading.hide();  
+	};
+    
+    var onGeolocationSuccessRefresh = function(position) {
+		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        var date = new Date().getTime();
+        $localstorage.setObject('last_connection',date);
+        console.log("all recomputed");
+        VelibAPI.getStationsfromAPI().success(function(data){getNearestStation(data); });
 	};
 
 	function onError(error) {
-		alert(//'code: '    + error.code    + '\n' +
-			 // 'message: ' + error.message + '\n'
+		alert('code: '    + error.code    + '\n' +
+			 'message: ' + error.message + '\n' +
               'You need to accept geolocalisation to use this application'
              );
 	}
@@ -163,40 +169,24 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
     
     $scope.doRefresh = function() {
-        navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
         $scope.$broadcast('scroll.refreshComplete');
     };
 });
  
-app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage){
-        
-    function getQueryVariable(variable) {      
-        var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
-    }
+app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,station){
     
-    $scope.available_bike=function(){
-	return  getQueryVariable("nb");
-	}
-    $scope.station_name=function(){
-	return  Number(getQueryVariable("id"));
-	}
+    $scope.station = station;
     
     function showAlert(numberOfBike) {
-        var text = "";
-        if (numberOfBike==1){text = "Merci d'avoir reporté un vélo";}
-        else if (numberOfBike>1){text = "Merci d'avoir reporté "+numberOfBike +" vélos";}
+        var textToDisplay = "";
+        if (numberOfBike==1){textToDisplay = "Merci d'avoir reporté un vélo";}
+        else if (numberOfBike>1){textToDisplay = "Merci d'avoir reporté "+numberOfBike +" vélos";}
        var alertPopup = $ionicPopup.alert({
             title: "Prelib'",
-            template: text
+            template: textToDisplay
         });
-        alertPopup.then(function(res) {
-        });
+        //alertPopup.then(function(res) {});
     };
     
     $scope.report = function(idStation,numberOfBike) {
@@ -213,14 +203,144 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     }
     
     var liste = new Array(50);
-    for (var i = 0; i < liste.length; i++) { 
-        liste[i]=i+1;
-    }
+    for (var i = 0; i < liste.length; i++) { liste[i]=i+1; }
     $scope.items = liste;
     
-});
+    var devList = new Array(50);
+    for (var i = 0; i < devList.length; i++) { devList[i]={name: i+1, id: i+1}; }
+    $scope.devList = devList;
+    
 
+    var isIOS = ionic.Platform.isIOS();
+    var isAndroid = ionic.Platform.isAndroid();
+    var isWindowsPhone = ionic.Platform.isWindowsPhone();
+    
+    //var mapsUrl = "http://maps.google.com?q="+$scope.station.address;
+    //var mapsUrl = "http://maps.google.com?q="+$scope.station.position.lat+","+$scope.station.position.lng;
+    //var mapsUrl = "http://www.google.com/maps/place/"+$scope.station.position.lat+","+$scope.station.position.lng+"/@"+$scope.station.position.lat+","+$scope.station.position.lng+",17z";
+    //var mapsUrl = "http://google.com/maps/preview/@"+$scope.station.position.lat+","+$scope.station.position.lng+","+"18z";
+    var mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;
+    if (isIOS) { mapsUrl = "https://maps.apple.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;}
+    else if (isAndroid) { mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
+    else if (isWindowsPhone) { mapsUrl = "maps:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
+    $scope.mapsUrl = mapsUrl;
+    console.log($scope.mapsUrl);
+    
+});
+                                                                                                        
+app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
+    console.log('TodosService1');
+    LoaderService.show();
+    var test;
+    if ($localstorage.get('stations') != null) {
+        console.log("NOT NULL");
+        test = JSON.parse($localstorage.get('stations'));
+    }
+    else {
+    console.log("NULL");
+    VelibAPI.getStationsfromAPI().success(function(data){
+        test = data;
+    });
+    }
+    
+  return {
+      stations: test,
+      
+    getStations: function() {
+      return this.stations
+    },
+    getStation: function(todoId) {
+      var dfd = $q.defer()
+      this.stations.forEach(function(station) {
+        if (station.number == todoId) {
+            dfd.resolve(station)}
+      })
+      return dfd.promise
+    }
+  }
+})
 
 app.config(function($stateProvider,$urlRouterProvider) {
-  
-});                                                                                                                    
+  $stateProvider
+  .state('stations', {
+    url: '/stations',
+    controller: 'StationsController',
+    templateUrl: 'stations.html',
+    resolve: {
+      stations: function(TodosService) {
+        return TodosService.getStations()
+      }
+    }
+  })
+  .state('station', {
+    url: '/stations/:stationID',
+    controller: 'ReportController',
+    templateUrl: 'station.html',
+    resolve: {
+      station: function($stateParams, TodosService) {
+        return TodosService.getStation($stateParams.stationID)
+      }
+    }
+  })
+    $urlRouterProvider.otherwise('/stations');
+});          
+
+angular.module('$selectBox', [])
+    .directive('selectBox', function () {
+    return {
+        restrict: 'E',
+        require: ['ngModel', 'ngData', 'ngSelectedId', 'ngSelectedValue', '?ngTitle', 'ngiItemName', 'ngItemId'],
+        template: '<input class="selectInput" id="showed" type="text" ng-click="showSelectModal()" readonly/>' + '<span id="hidden" type="text" style="display: none;"></span>',
+        controller: function ($scope, $element, $attrs, $ionicModal, $parse) {
+            $scope.modal = {};
+
+            $scope.showSelectModal = function () {
+                var val = $parse($attrs.ngData);
+                $scope.data = val($scope);
+
+                $scope.modal.show();
+            };
+
+            $scope.closeSelectModal = function () {
+                $scope.modal.hide();
+            };
+
+            $scope.$on('$destroy', function (id) {
+                $scope.modal.remove();
+            });
+
+            //{{'Gift.modalTitle' | translate}}
+            $scope.modal = $ionicModal.fromTemplate('<ion-modal-view id="select">' + '<ion-header-bar>' + '<h1 class="title">' + $attrs.ngTitle + '</h1>' + ' <a ng-click="closeSelectModal()" class="button button-icon icon ion-close"></a>' + '</ion-header-bar>' + '<ion-content>' + '<ul class="list">' + '<li class="item" ng-click="clickItem(item)" ng-repeat="item in data" ng-bind-html="item[\'' + $attrs.ngItemName + '\']"></li>' + '</ul>' + ' </ion-content>' + '</ion-modal-view>', {
+                scope: $scope,
+                animation: 'slide-in-up'
+            });
+
+            $scope.clickItem = function (item) {
+                var index = $parse($attrs.ngSelectedId);
+                index.assign($scope.$parent, item[$attrs.ngItemId]);
+
+                var value = $parse($attrs.ngSelectedValue);
+                value.assign($scope.$parent, item[$attrs.ngItemName]);
+
+                $scope.closeSelectModal();
+            };
+        },
+        compile: function ($element, $attrs) {
+            var input = $element.find('input');
+            angular.forEach({
+                'name': $attrs.name,
+                'placeholder': $attrs.ngPlaceholder,
+                'ng-model': $attrs.ngSelectedValue
+            }, function (value, name) {
+                if (angular.isDefined(value)) {
+                    input.attr(name, value);
+                }
+            });
+
+            var span = $element.find('span');
+            if (angular.isDefined($attrs.ngSelectedId)) {
+                span.attr('ng-model', $attrs.ngSelectedId);
+            }
+        }
+    };
+});

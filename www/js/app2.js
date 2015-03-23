@@ -114,51 +114,54 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
     $scope.nbStationsToDisplay = 3;
     $scope.stations = stations;
     
-    
-	var onGeolocationSuccess = function(position) {
-		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        
-		var getNearestStation = function(data) {
+    var getNearestStation = function(data) {
 			$scope.stations = data;
 			var stationPosition;
 			var distanceToStation;
 			for (var i=0; i<$scope.stations.length; i++) {
-                stationPosition = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
+               stationPosition = new google.maps.LatLng($scope.stations[i].position.lat, $scope.stations[i].position.lng);
 			   distanceToStation = google.maps.geometry.spherical.computeDistanceBetween($scope.userPosition, stationPosition);
 			   $scope.stations[i].distance = distanceToStation;
 			}
             $localstorage.setObject('stations',data);
 		}
+    
+	var onGeolocationSuccess = function(position) {
+		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         
         var date = new Date().getTime();
         var last_connection = $localstorage.getObject('last_connection');
         $localstorage.setObject('last_connection',date);
         var diff = date - last_connection;
-        //console.log($localstorage.getObject('test'));
-        if (last_connection != null && diff < 30000){
+        if (last_connection != null && diff < 10000){
             console.log(diff/1000);
+            console.log("stations data load from storage");
             $scope.stations = JSON.parse($localstorage.get('stations'));
-            $ionicLoading.hide();
-            //console.log($scope.stations);
         }
-        else if(last_connection != null && diff < 60000){
+        else if(last_connection != null && diff < 20000){
             console.log(diff/1000);
+            console.log("stations data load from storage but distance recomputed");
             var data = JSON.parse($localstorage.get('stations'));
-            $ionicLoading.hide();
             getNearestStation(data);
         }
         else {
-            VelibAPI.getStationsfromAPI().success(function(data){
-                $ionicLoading.hide();
-                getNearestStation(data);
-            });
+            console.log("all recomputed");
+            VelibAPI.getStationsfromAPI().success(function(data){getNearestStation(data); });
         }
-        
+        $ionicLoading.hide();  
+	};
+    
+    var onGeolocationSuccessRefresh = function(position) {
+		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        var date = new Date().getTime();
+        $localstorage.setObject('last_connection',date);
+        console.log("all recomputed");
+        VelibAPI.getStationsfromAPI().success(function(data){getNearestStation(data); });
 	};
 
 	function onError(error) {
-		alert(//'code: '    + error.code    + '\n' +
-			 // 'message: ' + error.message + '\n'
+		alert('code: '    + error.code    + '\n' +
+			 'message: ' + error.message + '\n' +
               'You need to accept geolocalisation to use this application'
              );
 	}
@@ -166,7 +169,7 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
     
     $scope.doRefresh = function() {
-        navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
         $scope.$broadcast('scroll.refreshComplete');
     };
 });
@@ -207,8 +210,7 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     for (var i = 0; i < devList.length; i++) { devList[i]={name: i+1, id: i+1}; }
     $scope.devList = devList;
     
-    
-   
+
     var isIOS = ionic.Platform.isIOS();
     var isAndroid = ionic.Platform.isAndroid();
     var isWindowsPhone = ionic.Platform.isWindowsPhone();
@@ -217,9 +219,7 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     //var mapsUrl = "http://maps.google.com?q="+$scope.station.position.lat+","+$scope.station.position.lng;
     //var mapsUrl = "http://www.google.com/maps/place/"+$scope.station.position.lat+","+$scope.station.position.lng+"/@"+$scope.station.position.lat+","+$scope.station.position.lng+",17z";
     //var mapsUrl = "http://google.com/maps/preview/@"+$scope.station.position.lat+","+$scope.station.position.lng+","+"18z";
-     
     var mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;
-
     if (isIOS) { mapsUrl = "https://maps.apple.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;}
     else if (isAndroid) { mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
     else if (isWindowsPhone) { mapsUrl = "maps:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }

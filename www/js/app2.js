@@ -221,7 +221,7 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     var mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;
 
     if (isIOS) { mapsUrl = "https://maps.apple.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;}
-    else if (isAndroid) { mapsUrl = "geo:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
+    else if (isAndroid) { mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
     else if (isWindowsPhone) { mapsUrl = "maps:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
     $scope.mapsUrl = mapsUrl;
     console.log($scope.mapsUrl);

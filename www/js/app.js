@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 
 'use strict';
-var app = angular.module('starter', ['ionic','$selectBox'])
+var app = angular.module('starter', ['ionic'])
 
 //A remplacer par une fonction angular directement
 //On peut avec angular utiliser des 'views' ce qui permet de naviguer dans la même page et ainsi avoir toujours accès aux variables
@@ -155,7 +155,7 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         var date = new Date().getTime();
         $localstorage.setObject('last_connection',date);
-        console.log("all recomputed");
+        console.log("all recomputed due to refresh");
         VelibAPI.getStationsfromAPI().success(function(data){getNearestStation(data); });
 	};
 
@@ -181,7 +181,7 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     function showAlert(numberOfBike) {
         var textToDisplay = "";
         if (numberOfBike==1){textToDisplay = "Merci d'avoir reporté un vélo";}
-        else if (numberOfBike>1){textToDisplay = "Merci d'avoir reporté "+numberOfBike +" vélos";}
+        else if (numberOfBike>1){textToDisplay = "Merci d'avoir signalé "+numberOfBike +" vélos";}
        var alertPopup = $ionicPopup.alert({
             title: "Prelib'",
             template: textToDisplay
@@ -202,8 +202,10 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
         showAlert(numberOfBike);
     }
     
-      $scope.update = function(chosen) {
-    console.log(chosen);
+    $scope.formatAddress = function() {
+        var first = $scope.station.address.split("-")[0].toLowerCase();
+        first = first.substr(0, 1).toUpperCase() + first.substr(1);
+        return first + "-" + $scope.station.address.split("-")[1];
     }
       
     var liste = new Array(50);
@@ -289,62 +291,3 @@ app.config(function($stateProvider,$urlRouterProvider) {
     $urlRouterProvider.otherwise('/stations');
 });          
 
-angular.module('$selectBox', [])
-    .directive('selectBox', function () {
-    return {
-        restrict: 'E',
-        require: ['ngModel', 'ngData', 'ngSelectedId', 'ngSelectedValue', '?ngTitle', 'ngiItemName', 'ngItemId'],
-        template: '<input class="selectInput" id="showed" type="text" ng-click="showSelectModal()" readonly/>' + '<span id="hidden" type="text" style="display: none;"></span>',
-        controller: function ($scope, $element, $attrs, $ionicModal, $parse) {
-            $scope.modal = {};
-
-            $scope.showSelectModal = function () {
-                var val = $parse($attrs.ngData);
-                $scope.data = val($scope);
-
-                $scope.modal.show();
-            };
-
-            $scope.closeSelectModal = function () {
-                $scope.modal.hide();
-            };
-
-            $scope.$on('$destroy', function (id) {
-                $scope.modal.remove();
-            });
-
-            //{{'Gift.modalTitle' | translate}}
-            $scope.modal = $ionicModal.fromTemplate('<ion-modal-view id="select">' + '<ion-header-bar>' + '<h1 class="title">' + $attrs.ngTitle + '</h1>' + ' <a ng-click="closeSelectModal()" class="button button-icon icon ion-close"></a>' + '</ion-header-bar>' + '<ion-content>' + '<ul class="list">' + '<li class="item" ng-click="clickItem(item)" ng-repeat="item in data" ng-bind-html="item[\'' + $attrs.ngItemName + '\']"></li>' + '</ul>' + ' </ion-content>' + '</ion-modal-view>', {
-                scope: $scope,
-                animation: 'slide-in-up'
-            });
-
-            $scope.clickItem = function (item) {
-                var index = $parse($attrs.ngSelectedId);
-                index.assign($scope.$parent, item[$attrs.ngItemId]);
-
-                var value = $parse($attrs.ngSelectedValue);
-                value.assign($scope.$parent, item[$attrs.ngItemName]);
-
-                $scope.closeSelectModal();
-            };
-        },
-        compile: function ($element, $attrs) {
-            var input = $element.find('input');
-            angular.forEach({
-                'name': $attrs.name,
-                'placeholder': $attrs.ngPlaceholder,
-                'ng-model': $attrs.ngSelectedValue
-            }, function (value, name) {
-                if (angular.isDefined(value)) {
-                    input.attr(name, value);
-                }
-            });
-
-            var span = $element.find('span');
-            if (angular.isDefined($attrs.ngSelectedId)) {
-                span.attr('ng-model', $attrs.ngSelectedId);
-            }
-        }
-    };
-});

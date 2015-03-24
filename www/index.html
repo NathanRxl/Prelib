@@ -49,11 +49,11 @@ body {
         <ion-content>
         <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
           <ion-list>
-          <div class="item item-divider">{{nbStationsToDisplay+" stations les plus proches:"}}</div>
+          <div class="item item-divider">{{nbStationsToDisplay+" stations les plus proches"}}</div>
             <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='station({stationID: station.number})'>
-            <div class="item-button-right">	
-            {{station.name.slice(8).split("(")[0]}} 
-                    <span class="item-note">{{" : "+station.distance.toFixed(0)+" m"}}</span>
+            <div item-text-wrap class="item-button">	
+            {{station.name.slice(8).split("(")[0]+" (à "+station.distance.toFixed(0)+" m)"}} 
+                    
 				    <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
             </div>
         </ion-item>
@@ -63,12 +63,12 @@ body {
     </script>
 
     <script type="text/ng-template" id="station.html">
-      <ion-view title={{station.name.slice(8).split("(")[0]}}>
+      <ion-view item-text-wrap title={{station.name.slice(8).split("(")[0]}}>
         <ion-content>
             <div class="item item-divider"> <i class="icon ion-information-circled"></i> Informations de la station</div>
-            <a class="item item-icon-left" href={{mapsUrl}}>
+            <a class="item item-icon-left item-text-wrap" href={{mapsUrl}}>
                 <i class="icon ion-map"></i>
-                <span>{{station.address}}</span>
+                <span>{{formatAddress()}}</span>
             </a>
             <!--<button class="button button-full button-light icon-left ion-map" href = {{mapsUrl}}>{{station.address}} </button>-->
             <a class="item item-icon-left">
@@ -83,7 +83,7 @@ body {
             <!--<button class="button button-full button-light icon-left ion-checkmark-circled ">{{station.available_bikes}} / {{station.bike_stands}}</button>-->
             <div class="item item-divider"> <i class="icon ion-alert-circled"></i> Signaler un Velib' cassé</div>
             <label class="item item-input item-select">
-                <div class="input-label">Sélectionnez le nombre de Velib' cassés</div>
+                <div class="input-label">Sélectionnez le nombre</div>
                 <select ng-model="chosen" ng-options="item as item.name for item in devList" ng-change="report(station.number,chosen.id)"></select>
             </label>
             <!--<select-box class="item" ng-Selected-Value="selectedValue" 

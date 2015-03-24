@@ -277,8 +277,39 @@ app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
             }
         },
         defaults: {
-            scrollWheelZoom: false
+    maxZoom: 14,
+    minZoom: 1,
+    doubleClickZoom: true,
+    scrollWheelZoom: true,
+    attributionControl: true,
+    tileLayer: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+    tileLayerOptions: {
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    },
+    icon: {
+        url: 'http://cdn.leafletjs.com/leaflet-0.6.4/images/marker-icon.png',
+        retinaUrl: 'http://cdn.leafletjs.com/leaflet-0.6.4/images/marker-icon@2x.png',
+        size: [25, 41],
+        anchor: [12, 40],
+        popup: [0, -40],
+        shadow: {
+            url: 'http://cdn.leafletjs.com/leaflet-0.6.4/images/marker-shadow.png',
+            retinaUrl: 'http://cdn.leafletjs.com/leaflet-0.6.4/images/marker-shadow.png',
+            size: [41, 41],
+            anchor: [12, 40]
         }
+    },
+    path: {
+        weight: 10,
+        opacity: 1,
+        color: '#0000ff'
+    },
+    center: {
+        lat: 0,
+        lng: 0,
+        zoom: 10
+    }
+}
     });
 }])
 

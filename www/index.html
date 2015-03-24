@@ -65,7 +65,7 @@ body {
     <script type="text/ng-template" id="station.html">
       <ion-view title={{station.name.slice(8).split("(")[0]}}>
         <ion-content>
-            <div class="item item-divider"> <i class="icon ion-information-circled"></i> Informations de la station:</div>
+            <div class="item item-divider"> <i class="icon ion-information-circled"></i> Informations de la station</div>
             <a class="item item-icon-left" href={{mapsUrl}}>
                 <i class="icon ion-map"></i>
                 <span>{{station.address}}</span>
@@ -81,15 +81,19 @@ body {
                 <span>{{station.available_bikes+" / "+station.bike_stands}}</span>
             </a>
             <!--<button class="button button-full button-light icon-left ion-checkmark-circled ">{{station.available_bikes}} / {{station.bike_stands}}</button>-->
-            <div class="item item-divider"> <i class="icon ion-alert-circled"></i> Signaler un Velib' cassé:</div>
-            <select-box class="item" ng-Selected-Value="selectedValue" 
+            <div class="item item-divider"> <i class="icon ion-alert-circled"></i> Signaler un Velib' cassé</div>
+            <label class="item item-input item-select">
+                <div class="input-label">Sélectionnez le nombre de Velib' cassés</div>
+                <select ng-model="chosen" ng-options="item as item.name for item in devList" ng-change="report(station.number,chosen.id)"></select>
+            </label>
+            <!--<select-box class="item" ng-Selected-Value="selectedValue" 
                     ng-Selected-Id="selectedId" 
                     ng-Item-Name="name" 
                     ng-Item-Id="id" 
                     ng-title="Combien ?" 
                     ng-data="devList" 
                     ng-placeholder="Il y a t-il des vélos cassés à cette station ?"></select-box>
-                    <button class="button button-full button-stable icon-center ion-upload" ng-click="report(station.number,selectedValue)"> Valider</button>
+                    <button class="button button-full button-stable icon-center ion-upload" ng-click="report(station.number,selectedValue)"> Valider</button>-->
             <!--<ion-item ng-repeat="item in items | limitTo:  station.available_bikes" ng-click="report(station.number,item)"> {{ item }} </ion-item>-->
         </ion-content>
       </ion-view>

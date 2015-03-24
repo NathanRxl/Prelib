@@ -263,14 +263,17 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
 
 app.controller("MapCtrl", [ '$scope', function($scope) {
     
-    $scope.locate = function(){
+    /*$scope.locate = function(){
 
         var onGeolocationSuccess = function(position) {
-            $scope.map.center.lat  = position.coords.latitude;
-            $scope.map.center.lng = position.coords.longitude;
-            $scope.map.center.zoom = 15;
-
-            $scope.map.marker = {
+            console.log('map geoloc successfull');
+            $scope.center = {
+                lat:position.coords.latitude,
+                lng:position.coords.longitude,
+                zoom: 15
+            };
+            console.log($scope.center);
+            $scope.marker = {
               lat:position.coords.latitude,
               lng:position.coords.longitude,
               message: "You Are Here",
@@ -284,26 +287,30 @@ app.controller("MapCtrl", [ '$scope', function($scope) {
 			 'message: ' + error.message + '\n' +
               'You need to accept geolocalisation to use this application'
              );
+           console.log('map geoloc failed');
 	   }
 
         navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
-        
-      };
+        console.log($scope.center);
+      };*/
     
     angular.extend($scope, {
-        myPosition: {
-            lat: 59.91,
-            lng: 10.75,
-            zoom: 18
+        parisCenter: {
+            lat: 48.858093,
+            lng: 2.294694,
+            zoom: 12
         },
         markers: {
-            osloMarker: {
-                lat: 59.91,
-                lng: 10.75,
-                message: "I want to travel here!",
+            9007: {
+                lat: 48.87983122511022,
+                lng: 2.345396338986368,
+                message: "CONDORCET",
                 focus: true,
                 draggable: false
             }
+        },
+        defaults: {
+            scrollWheelZoom: false
         }
     });
 }])

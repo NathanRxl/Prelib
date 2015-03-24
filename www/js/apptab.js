@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 
 'use strict';
-var app = angular.module('starter', ['ionic','$selectBox','leaflet-directive'])
+var app = angular.module('starter', ['ionic','leaflet-directive'])
 
 //A remplacer par une fonction angular directement
 //On peut avec angular utiliser des 'views' ce qui permet de naviguer dans la même page et ainsi avoir toujours accès aux variables
@@ -110,9 +110,15 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
 });
 
 app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
-    //LoaderService.show();
-    $scope.nbStationsToDisplay = 3;
+    LoaderService.show();
+    $scope.nbStationsToDisplay = 5;
     $scope.stations = stations;
+    
+    $scope.formatDate = function(){
+        var d = $scope.date;
+        if (d!=undefined) { return d.getDate()+"-"+(d.getMonth()+1)+"-"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds(); }
+        else { return "calculating...";}
+    }
     
     var getNearestStation = function(data) {
 			$scope.stations = data;
@@ -124,55 +130,87 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 			   $scope.stations[i].distance = distanceToStation;
 			}
             $localstorage.setObject('stations',data);
-		}
+    }
     
-	var onGeolocationSuccess = function(position) {
+    var onGeolocationSuccessDistancedRecomputed = function(position) {
+        console.log(diff/1000);
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        
-        var date = new Date().getTime();
-        var last_connection = $localstorage.getObject('last_connection');
-        $localstorage.setObject('last_connection',date);
-        var diff = date - last_connection;
-        if (last_connection != null && diff < 10000){
-            console.log(diff/1000);
-            console.log("stations data load from storage");
-            $scope.stations = JSON.parse($localstorage.get('stations'));
-        }
-        else if(last_connection != null && diff < 20000){
-            console.log(diff/1000);
-            console.log("stations data load from storage but distance recomputed");
-            var data = JSON.parse($localstorage.get('stations'));
-            getNearestStation(data);
-        }
-        else {
-            console.log("all recomputed");
-            VelibAPI.getStationsfromAPI().success(function(data){getNearestStation(data); });
-        }
-        $ionicLoading.hide();  
+        $scope.date = new Date();
+        $localstorage.setObject('last_connection',new Date().getTime());
+        console.log("stations data load from storage but distance recomputed");
+        var data = JSON.parse($localstorage.get('stations'));
+        getNearestStation(data);
 	};
     
     var onGeolocationSuccessRefresh = function(position) {
+        console.log(diff/1000);
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        var date = new Date().getTime();
-        $localstorage.setObject('last_connection',date);
+        $scope.date = new Date();
+        $localstorage.setObject('last_connection',new Date().getTime());
         console.log("all recomputed");
         VelibAPI.getStationsfromAPI().success(function(data){getNearestStation(data); });
 	};
 
-	function onError(error) {
+	var onError = function(error) {
 		alert('code: '    + error.code    + '\n' +
 			 'message: ' + error.message + '\n' +
               'You need to accept geolocalisation to use this application'
              );
 	}
-
-	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
-    
+	
     $scope.doRefresh = function() {
         navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
         $scope.$broadcast('scroll.refreshComplete');
-    };
+    };    
+    
+    var date = new Date().getTime();
+    $scope.date = new Date();
+    var last_connection = $localstorage.getObject('last_connection');
+    $localstorage.setObject('last_connection',date);
+    var diff = date - last_connection;
+        
+    if (last_connection != null && $localstorage.get('stations') != null && diff < 10000){
+        console.log("stations data load from storage");
+        $scope.stations = JSON.parse($localstorage.get('stations'));
+    }
+    else if(last_connection != null && $localstorage.get('stations') != null && diff < 20000){
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccessDistancedRecomputed, onError,{enableHighAccuracy: true});
+    }
+    else {
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
+    }
+    $ionicLoading.hide();  	
+	
 });
+
+app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
+    LoaderService.show();
+   
+    var stationsData;
+    if ($localstorage.get('stations') != null) {
+        console.log("NOT NULL");
+        stationsData = JSON.parse($localstorage.get('stations'));
+    }
+    else {
+        console.log("NULL");
+        VelibAPI.getStationsfromAPI().success(function(data){ test = stationsData; });
+    }
+    
+  return {
+    stations: stationsData,
+    getStations: function() {
+      return this.stations
+    },
+    getStation: function(todoId) {
+      var dfd = $q.defer()
+      this.stations.forEach(function(station) {
+        if (station.number == todoId) {
+            dfd.resolve(station)}
+      })
+      return dfd.promise
+    }
+  }
+})
  
 app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,station){
     
@@ -181,12 +219,11 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     function showAlert(numberOfBike) {
         var textToDisplay = "";
         if (numberOfBike==1){textToDisplay = "Merci d'avoir reporté un vélo";}
-        else if (numberOfBike>1){textToDisplay = "Merci d'avoir reporté "+numberOfBike +" vélos";}
+        else if (numberOfBike>1){textToDisplay = "Merci d'avoir signalé "+numberOfBike +" vélos";}
        var alertPopup = $ionicPopup.alert({
             title: "Prelib'",
             template: textToDisplay
         });
-        //alertPopup.then(function(res) {});
     };
     
     $scope.report = function(idStation,numberOfBike) {
@@ -202,114 +239,79 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
         showAlert(numberOfBike);
     }
     
-    var liste = new Array(50);
-    for (var i = 0; i < liste.length; i++) { liste[i]=i+1; }
-    $scope.items = liste;
+    $scope.formatAddress = function() {
+        var first = $scope.station.address.split("-")[0].toLowerCase();
+        first = first.substr(0, 1).toUpperCase() + first.substr(1);
+        return first + "-" + $scope.station.address.split("-")[1];
+    }
     
     var devList = new Array(50);
-    for (var i = 0; i < devList.length; i++) { devList[i]={name: i+1, id: i+1}; }
+    for (var i = 0; i < devList.length; i++) { devList[i]={name: i, id: i}; }
     $scope.devList = devList;
     
-
     var isIOS = ionic.Platform.isIOS();
     var isAndroid = ionic.Platform.isAndroid();
     var isWindowsPhone = ionic.Platform.isWindowsPhone();
     
-    //var mapsUrl = "http://maps.google.com?q="+$scope.station.address;
-    //var mapsUrl = "http://maps.google.com?q="+$scope.station.position.lat+","+$scope.station.position.lng;
-    //var mapsUrl = "http://www.google.com/maps/place/"+$scope.station.position.lat+","+$scope.station.position.lng+"/@"+$scope.station.position.lat+","+$scope.station.position.lng+",17z";
-    //var mapsUrl = "http://google.com/maps/preview/@"+$scope.station.position.lat+","+$scope.station.position.lng+","+"18z";
     var mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;
     if (isIOS) { mapsUrl = "https://maps.apple.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng;}
     else if (isAndroid) { mapsUrl = "https://maps.google.com?saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
     else if (isWindowsPhone) { mapsUrl = "maps:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
     $scope.mapsUrl = mapsUrl;
-    console.log($scope.mapsUrl);
     
 });
-                                                                                                        
-app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
-    console.log('TodosService1');
-    LoaderService.show();
-    var test;
-    if ($localstorage.get('stations') != null) {
-        console.log("NOT NULL");
-        test = JSON.parse($localstorage.get('stations'));
-    }
-    else {
-    console.log("NULL");
-    VelibAPI.getStationsfromAPI().success(function(data){
-        test = data;
-    });
-    }
-    
-  return {
-      stations: test,
-      
-    getStations: function() {
-      return this.stations
-    },
-    getStation: function(todoId) {
-      var dfd = $q.defer()
-      this.stations.forEach(function(station) {
-        if (station.number == todoId) {
-            dfd.resolve(station)}
-      })
-      return dfd.promise
-    }
-  }
-})
 
-.controller("MapCtrl", [ '$scope', function($scope) {
+app.controller("MapCtrl", [ '$scope', function($scope) {
+    
+    /*$scope.locate = function(){
+
+        var onGeolocationSuccess = function(position) {
+            console.log('map geoloc successfull');
+            $scope.center = {
+                lat:position.coords.latitude,
+                lng:position.coords.longitude,
+                zoom: 15
+            };
+            console.log($scope.center);
+            $scope.marker = {
+              lat:position.coords.latitude,
+              lng:position.coords.longitude,
+              message: "You Are Here",
+              focus: true,
+              draggable: false
+            };
+	   };
+
+	   var onError = function(error) {
+		alert('code: '    + error.code    + '\n' +
+			 'message: ' + error.message + '\n' +
+              'You need to accept geolocalisation to use this application'
+             );
+           console.log('map geoloc failed');
+	   }
+
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
+        console.log($scope.center);
+      };*/
+    
     angular.extend($scope, {
-        osloCenter: {
-            lat: 59.91,
-            lng: 10.75,
+        parisCenter: {
+            lat: 48.858093,
+            lng: 2.294694,
             zoom: 12
         },
         markers: {
-            osloMarker: {
-                lat: 59.91,
-                lng: 10.75,
-                message: "I want to travel here!",
+            9007: {
+                lat: 48.87983122511022,
+                lng: 2.345396338986368,
+                message: "CONDORCET",
                 focus: true,
                 draggable: false
             }
         },
         defaults: {
-    maxZoom: 14,
-    minZoom: 1,
-    doubleClickZoom: true,
-    scrollWheelZoom: true,
-    attributionControl: true,
-    tileLayer: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
-    tileLayerOptions: {
-        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    },
-    icon: {
-        url: 'http://cdn.leafletjs.com/leaflet-0.6.4/images/marker-icon.png',
-        retinaUrl: 'http://cdn.leafletjs.com/leaflet-0.6.4/images/marker-icon@2x.png',
-        size: [25, 41],
-        anchor: [12, 40],
-        popup: [0, -40],
-        shadow: {
-            url: 'http://cdn.leafletjs.com/leaflet-0.6.4/images/marker-shadow.png',
-            retinaUrl: 'http://cdn.leafletjs.com/leaflet-0.6.4/images/marker-shadow.png',
-            size: [41, 41],
-            anchor: [12, 40]
+            scrollWheelZoom: false
         }
-    },
-    path: {
-        weight: 10,
-        opacity: 1,
-        color: '#0000ff'
-    },
-    center: {
-        lat: 0,
-        lng: 0,
-        zoom: 10
-    }
-}
     });
 }])
 
@@ -367,63 +369,3 @@ app.config(function($stateProvider,$urlRouterProvider) {
   })
     $urlRouterProvider.otherwise("/tab/stations");
 });          
-
-angular.module('$selectBox', [])
-    .directive('selectBox', function () {
-    return {
-        restrict: 'E',
-        require: ['ngModel', 'ngData', 'ngSelectedId', 'ngSelectedValue', '?ngTitle', 'ngiItemName', 'ngItemId'],
-        template: '<input class="selectInput" id="showed" type="text" ng-click="showSelectModal()" readonly/>' + '<span id="hidden" type="text" style="display: none;"></span>',
-        controller: function ($scope, $element, $attrs, $ionicModal, $parse) {
-            $scope.modal = {};
-
-            $scope.showSelectModal = function () {
-                var val = $parse($attrs.ngData);
-                $scope.data = val($scope);
-
-                $scope.modal.show();
-            };
-
-            $scope.closeSelectModal = function () {
-                $scope.modal.hide();
-            };
-
-            $scope.$on('$destroy', function (id) {
-                $scope.modal.remove();
-            });
-
-            //{{'Gift.modalTitle' | translate}}
-            $scope.modal = $ionicModal.fromTemplate('<ion-modal-view id="select">' + '<ion-header-bar>' + '<h1 class="title">' + $attrs.ngTitle + '</h1>' + ' <a ng-click="closeSelectModal()" class="button button-icon icon ion-close"></a>' + '</ion-header-bar>' + '<ion-content>' + '<ul class="list">' + '<li class="item" ng-click="clickItem(item)" ng-repeat="item in data" ng-bind-html="item[\'' + $attrs.ngItemName + '\']"></li>' + '</ul>' + ' </ion-content>' + '</ion-modal-view>', {
-                scope: $scope,
-                animation: 'slide-in-up'
-            });
-
-            $scope.clickItem = function (item) {
-                var index = $parse($attrs.ngSelectedId);
-                index.assign($scope.$parent, item[$attrs.ngItemId]);
-
-                var value = $parse($attrs.ngSelectedValue);
-                value.assign($scope.$parent, item[$attrs.ngItemName]);
-
-                $scope.closeSelectModal();
-            };
-        },
-        compile: function ($element, $attrs) {
-            var input = $element.find('input');
-            angular.forEach({
-                'name': $attrs.name,
-                'placeholder': $attrs.ngPlaceholder,
-                'ng-model': $attrs.ngSelectedValue
-            }, function (value, name) {
-                if (angular.isDefined(value)) {
-                    input.attr(name, value);
-                }
-            });
-
-            var span = $element.find('span');
-            if (angular.isDefined($attrs.ngSelectedId)) {
-                span.attr('ng-model', $attrs.ngSelectedId);
-            }
-        }
-    };
-});

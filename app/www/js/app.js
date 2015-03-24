@@ -202,12 +202,16 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
         showAlert(numberOfBike);
     }
     
+      $scope.update = function(chosen) {
+    console.log(chosen);
+    }
+      
     var liste = new Array(50);
     for (var i = 0; i < liste.length; i++) { liste[i]=i+1; }
     $scope.items = liste;
     
     var devList = new Array(50);
-    for (var i = 0; i < devList.length; i++) { devList[i]={name: i+1, id: i+1}; }
+    for (var i = 0; i < devList.length; i++) { devList[i]={name: i, id: i}; }
     $scope.devList = devList;
     
 

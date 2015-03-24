@@ -186,32 +186,47 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
     LoaderService.show();
    
-    var stationsData;
-    if ($localstorage.get('stations') != null) {
-        console.log("NOT NULL");
-        stationsData = JSON.parse($localstorage.get('stations'));
-    }
-    else {
-        console.log("NULL");
-        VelibAPI.getStationsfromAPI().success(function(data){ test = stationsData; });
-    }
+    var stationsData = null;
     
   return {
     stations: stationsData,
     getStations: function() {
+        console.log("getStations");
       return this.stations
     },
     getStation: function(todoId) {
-      var dfd = $q.defer()
+        console.log("getStation");
+      /*var dfd = $q.defer()
       this.stations.forEach(function(station) {
+        if (station.number == todoId) {
+            dfd.resolve(station)}
+      })
+      return dfd.promise*/
+        if ($localstorage.get('stations') != null) {
+        console.log("NOT NULL");
+        stationsData = JSON.parse($localstorage.get('stations'));
+        var dfd = $q.defer()
+        stationsData.forEach(function(station) {
         if (station.number == todoId) {
             dfd.resolve(station)}
       })
       return dfd.promise
     }
+    else {
+        console.log("NULL");
+        VelibAPI.getStationsfromAPI().success(function(data){
+            stationsData = data;
+            var dfd = $q.defer()
+             stationsData.forEach(function(station) {
+        if (station.number == todoId) {
+            dfd.resolve(station)}
+      })
+      return dfd.promise                                               
+        });
+    }
+    }
   }
 })
- 
 app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,station){
     
     $scope.station = station;

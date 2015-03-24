@@ -130,10 +130,10 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 			   $scope.stations[i].distance = distanceToStation;
 			}
             $localstorage.setObject('stations',data);
+            console.log('stations data saved');
     }
     
     var onGeolocationSuccessDistancedRecomputed = function(position) {
-        console.log(diff/1000);
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         $scope.date = new Date();
         $localstorage.setObject('last_connection',new Date().getTime());
@@ -143,7 +143,6 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 	};
     
     var onGeolocationSuccessRefresh = function(position) {
-        console.log(diff/1000);
 		$scope.userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         $scope.date = new Date();
         $localstorage.setObject('last_connection',new Date().getTime());
@@ -186,28 +185,44 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
     LoaderService.show();
    
-    var stationsData;
-    if ($localstorage.get('stations') != null) {
-        console.log("NOT NULL");
-        stationsData = JSON.parse($localstorage.get('stations'));
-    }
-    else {
-        console.log("NULL");
-        VelibAPI.getStationsfromAPI().success(function(data){ test = stationsData; });
-    }
+    var stationsData = null;
     
   return {
     stations: stationsData,
     getStations: function() {
+        console.log("getStations");
       return this.stations
     },
     getStation: function(todoId) {
-      var dfd = $q.defer()
+        console.log("getStation");
+      /*var dfd = $q.defer()
       this.stations.forEach(function(station) {
         if (station.number == todoId) {
             dfd.resolve(station)}
       })
+      return dfd.promise*/
+        if ($localstorage.get('stations') != null) {
+        console.log("NOT NULL");
+        stationsData = JSON.parse($localstorage.get('stations'));
+        var dfd = $q.defer()
+        stationsData.forEach(function(station) {
+        if (station.number == todoId) {
+            dfd.resolve(station)}
+      })
       return dfd.promise
+    }
+    else {
+        console.log("NULL");
+        VelibAPI.getStationsfromAPI().success(function(data){
+            stationsData = data;
+            var dfd = $q.defer()
+             stationsData.forEach(function(station) {
+        if (station.number == todoId) {
+            dfd.resolve(station)}
+      })
+      return dfd.promise                                               
+        });
+    }
     }
   }
 })

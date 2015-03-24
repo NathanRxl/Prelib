@@ -87,7 +87,7 @@ body {
     <script type="text/ng-template" id="station.html">
       <ion-view title={{station.name.slice(8).split("(")[0]}}>
         <ion-content>
-            <div class="item item-divider"> <i class="icon ion-information-circled"></i> Informations de la station:</div>
+            <div class="item item-divider"> <i class="icon ion-information-circled"></i> Informations sur la station:</div>
             <a class="item item-icon-left" href={{mapsUrl}}>
                 <i class="icon ion-map"></i>
                 <span>{{station.address}}</span>
@@ -120,7 +120,7 @@ body {
       <script id="maps.html" type="text/ng-template">
       <ion-view title="Plan">
         <ion-content overflow-scroll="true">
-          <leaflet markers="markers" center="osloCenter"></leaflet>
+          <leaflet></leaflet>
         </ion-content>
         </ion-content>
       </ion-view>

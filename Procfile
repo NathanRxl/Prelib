@@ -1,1 +1,0 @@
-web: gunicorn prelib.wsgi --log-file -

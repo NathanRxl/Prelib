@@ -254,13 +254,24 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
         showAlert(numberOfBike);
     }
     
-    $scope.formatAddress = function() {
+    $scope.formatAddress = function(part) {
         var first = $scope.station.address.split("-")[0].toLowerCase();
-        first = first.substr(0, 1).toUpperCase() + first.substr(1);
-        return first + "-" + $scope.station.address.split("-")[1];
+        var firstPart = first.split(" ");
+        var newFirstPart = "";
+        for (var i=0; i<firstPart.length; i++) {
+            newFirstPart = newFirstPart + firstPart[i].substr(0, 1).toUpperCase() + firstPart[i].substr(1) + " " ;
+        }
+        var second = $scope.station.address.split("-")[1].toLowerCase();
+        var secondPart = second.split(" ");
+        var newSecondPart = "";
+        for (var i=0; i<secondPart.length; i++) {
+            newSecondPart = newSecondPart + secondPart[i].substr(0, 1).toUpperCase() + secondPart[i].substr(1) + " " ;
+        }
+        if (part==1) { return newFirstPart; }
+        else if (part==2) { return newSecondPart; }
     }
     
-    var devList = new Array(50);
+    var devList = new Array($scope.station.available_bikes+1);
     for (var i = 0; i < devList.length; i++) { devList[i]={name: i, id: i}; }
     $scope.devList = devList;
     

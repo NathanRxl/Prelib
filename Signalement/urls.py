@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
-import views.py
 
-urlpatterns = patterns('',
+
+urlpatterns = patterns('Signalement.views',
                        #créé le signalement
-                       url(r'^$',views.create_report,name='create_report'),
-                       )
+        url(r'^signalement/(?P<id_station>\d{5})/(?P<loss>\d{1,})$','create_report'),
+        )

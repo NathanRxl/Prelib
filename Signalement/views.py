@@ -1,18 +1,20 @@
 from django.shortcuts import render
+from django.shortcuts import 
 
-import django.http
+from django.http import HttpResponse, Http404
 import HttpRequest
 from Signalement.models import Global
 
-#request = HttpRequest.REQUEST
-
 #Insert a row in the table Global with an instance of global
-def create_report(request):
+def create_report(request,id_station,loss):
     if request.method == 'GET':
         pass
     elif request.method == 'POST':
-        request.POST.get(name,loss)#get the name of the station and
-        #the number of broken bikes
-        report = Global(station_name = name, station_loss = loss)
-        #create a row and save it
+        report = Global(station_id = id_station, station_loss = loss)
         report.save()
+        return HttpResponse("Votre report a bien été pris en compte. Merci d\'utiliser Prelib\'")
+
+                    
+                            
+                            
+        

@@ -1,0 +1,5 @@
+*.pyc
+*.pyo
+/report/__pycache__/*
+/report/migrations/__pycache__/*
+/django_prelib/__pycache__/*

@@ -312,9 +312,12 @@ app.controller("MapCtrl", function($scope,VelibAPI) {
     
     var map = L.map('map');
 
-    L.tileLayer('http://{s}.tiles.mapbox.com/v3/emilemathieu.lhni69mg/997/256/{z}/{x}/{y}.png', {
-        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-        maxZoom: 18
+    L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			id: 'examples.map-i875mjb7'
     }).addTo(map);
     
     $scope.locate = function(){
@@ -355,13 +358,14 @@ var loadStationsMarkers = function() {
         map.removeLayer(markers1);
         markers1.clearLayers();  
     }
-    
+    //console.log(map.getZoom());
     markers1 = new L.layerGroup();
     var data = $scope.stations;
         console.log('map moved');
         angular.forEach(data, function(station) {
-            if (station.position.lat>=map.getBounds()._southWest.lat && station.position.lat<=map.getBounds()._northEast.lat && station.position.lng>= map.getBounds()._southWest.lng && station.position.lng<= map.getBounds()._northEast.lng) {
-           var marker = L.marker([station.position.lat, station.position.lng],{title:station.name})
+            //console.log(Math.abs(map.getCenter().lat-station.position.lat));
+            if ((map.getZoom()>=15 && station.position.lat>=map.getBounds()._southWest.lat && station.position.lat<=map.getBounds()._northEast.lat && station.position.lng>= map.getBounds()._southWest.lng && station.position.lng<= map.getBounds()._northEast.lng) || map.getZoom()<15 && Math.abs(map.getCenter().lat-station.position.lat)<0.005 && Math.abs(map.getCenter().lng-station.position.lng)<0.01) {
+           var marker = L.marker([station.position.lat, station.position.lng],{ clickable:true})
            marker.bindPopup("<b>"+station.name+"</b>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
            //marker.addTo(map);
            markers1.addLayer(marker);

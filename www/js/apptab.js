@@ -276,7 +276,7 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     
 });
 
-app.controller("MapCtrl", [ '$scope', function($scope) {
+app.controller("MapCtrl", function($scope,VelibAPI) {
     
     /*$scope.locate = function(){
 
@@ -309,7 +309,72 @@ app.controller("MapCtrl", [ '$scope', function($scope) {
         console.log($scope.center);
       };*/
     
-    angular.extend($scope, {
+    
+    var map = L.map('map');
+
+    L.tileLayer('http://{s}.tiles.mapbox.com/v3/emilemathieu.lhni69mg/997/256/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18
+    }).addTo(map);
+    
+    $scope.locate = function(){
+        map.locate({setView: true, maxZoom: 16});
+    }
+    
+    
+    map.locate({setView: true, maxZoom: 16});
+    //var markerCenter = L.marker(map.getCenter()).addTo(map);
+    var markerCenter = L.marker();
+    var circleCenter = L.circle();
+    
+    function onLocationFound(e) {
+        var radius = e.accuracy / 2;
+        circleCenter.setLatLng(e.latlng);
+        circleCenter.setRadius(radius);
+        circleCenter.addTo(map);
+        markerCenter.setLatLng(e.latlng);
+        markerCenter.addTo(map);
+        map.setView(markerCenter.getLatLng(),map.getZoom()); 
+        markerCenter.bindPopup("You are within " + radius + " meters from this point").openPopup();
+        }
+
+    map.on('locationfound', onLocationFound);
+    function onLocationError(e) {
+        alert(e.message);
+    }
+    map.on('locationerror', onLocationError);
+
+
+var markers1 = new L.layerGroup();
+var markers2 = new L.layerGroup();
+
+VelibAPI.getStationsfromAPI().success(function(data){ $scope.stations = data; })    
+    
+var loadStationsMarkers = function() {
+    if (markers1.getLayers().length>0) {
+        map.removeLayer(markers1);
+        markers1.clearLayers();  
+    }
+    
+    markers1 = new L.layerGroup();
+    var data = $scope.stations;
+        console.log('map moved');
+        angular.forEach(data, function(station) {
+            if (station.position.lat>=map.getBounds()._southWest.lat && station.position.lat<=map.getBounds()._northEast.lat && station.position.lng>= map.getBounds()._southWest.lng && station.position.lng<= map.getBounds()._northEast.lng) {
+           var marker = L.marker([station.position.lat, station.position.lng],{title:station.name})
+           marker.bindPopup("<b>"+station.name+"</b>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
+           //marker.addTo(map);
+           markers1.addLayer(marker);
+            }
+        })
+    map.addLayer(markers1);
+}
+    
+map.on('moveend', function(e) {
+   loadStationsMarkers();
+});
+    
+    /*angular.extend($scope, {
         parisCenter: {
             lat: 48.858093,
             lng: 2.294694,
@@ -327,8 +392,8 @@ app.controller("MapCtrl", [ '$scope', function($scope) {
         defaults: {
             scrollWheelZoom: false
         }
-    });
-}])
+    });*/
+})
 
 app.config(function($stateProvider,$urlRouterProvider) {
   $stateProvider

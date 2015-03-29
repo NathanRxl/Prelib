@@ -7,12 +7,11 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
     <title>Prelib'</title>
 
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css">
+     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
     <link href="css/ionic.app.css" rel="stylesheet">
     -->
@@ -27,7 +26,7 @@
     <!-- your app's js -->
     <script src="js/apptab.js"></script>
       
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
+     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
    <!-- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script> -->
     <script src="js/angular-leaflet-directive.min.js"></script>
   </head>
@@ -40,6 +39,14 @@ body {
 
 .selectInput{
   cursor: inherit !important;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
 }
 </style>
 
@@ -132,7 +139,8 @@ body {
         <button ng-click="locate();" class="button button-icon icon ion-pinpoint"></button>
     </ion-nav-buttons>
         <ion-content  has-header="true" has-tabs="true" overflow-scroll="true">
-          <leaflet markers="markers" center="parisCenter"style="height: 400px; width: 100%;"></leaflet>
+          <!--<leaflet markers="markers" center="parisCenter"style="height: 400px; width: 100%;"></leaflet>-->
+           <div id="map"></div>
         </ion-content>
       </ion-view>
     </script>

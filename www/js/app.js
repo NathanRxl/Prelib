@@ -9,7 +9,10 @@ var app = angular.module('starter', ['ionic'])
 
 //A remplacer par une fonction angular directement
 //On peut avec angular utiliser des 'views' ce qui permet de naviguer dans la même page et ainsi avoir toujours accès aux variables
-
+document.addEventListener("deviceready", onDeviceReady, false);
+    function onDeviceReady() {
+        console.log("deviceready");
+    }
 app.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -24,7 +27,6 @@ app.run(function($ionicPlatform) {
 })
 
 app.factory('PrelibAPI', function($http) {
-
 	return {
 		report: function(stationName,numberOfBike){
 			return $http({
@@ -33,7 +35,6 @@ app.factory('PrelibAPI', function($http) {
     params: {stationName:stationName, numberOfBike:numberOfBike}
     })
 		},
-        
         getPredictionOfStations: function(stationId){
             return $http({
     url: 'prelib-api.herokuapp.com/stations', 
@@ -85,6 +86,14 @@ app.factory('$localstorage', ['$window', function($window) {
   }
 }]);
 
+app.factory('StationFactory', function(VelibAPI,$localStorage) {
+
+	return {
+		getStations: function(){},
+        getStation: function(){}
+	}
+})
+
 app.factory('LoaderService', function($rootScope, $ionicLoading) {
   return {
         show : function() {
@@ -113,7 +122,7 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
     LoaderService.show();
     $scope.nbStationsToDisplay = 5;
     $scope.stations = stations;
-    
+
     $scope.formatDate = function(){
         var d = $scope.date;
         if (d!=undefined) { return d.getDate()+"-"+(d.getMonth()+1)+"-"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds(); }
@@ -150,7 +159,10 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
         VelibAPI.getStationsfromAPI().success(function(data){getNearestStation(data); });
 	};
 
-	function onError(error) {
+	function onFirstError(error) {
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onSecondError,{enableHighAccuracy: false});
+	}
+    function onSecondError(error) {
 		alert('code: '    + error.code    + '\n' +
 			 'message: ' + error.message + '\n' +
               'You need to accept geolocalisation to use this application'
@@ -158,7 +170,7 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
 	}
 	
     $scope.doRefresh = function() {
-        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onFirstError,{enableHighAccuracy: true});
         $scope.$broadcast('scroll.refreshComplete');
     };    
     
@@ -173,10 +185,10 @@ app.controller('StationsController', function($scope,VelibAPI,$localstorage,Load
         $scope.stations = JSON.parse($localstorage.get('stations'));
     }
     else if(last_connection != null && $localstorage.get('stations') != null && diff < 20000){
-        navigator.geolocation.getCurrentPosition(onGeolocationSuccessDistancedRecomputed, onError,{enableHighAccuracy: true});
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccessDistancedRecomputed, onFirstError,{enableHighAccuracy: true});
     }
     else {
-        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
+        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onFirstError,{enableHighAccuracy: true});
     }
     $ionicLoading.hide();  	
 	
@@ -231,6 +243,10 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     
     $scope.station = station;
     
+    function alertDismissed() {
+    console.log('popup');
+    };
+    
     function showAlert(numberOfBike) {
         var textToDisplay = "";
         if (numberOfBike==1){textToDisplay = "Merci d'avoir reporté un vélo";}
@@ -239,6 +255,7 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
             title: "Prelib'",
             template: textToDisplay
         });
+        
     };
     
     $scope.report = function(idStation,numberOfBike) {

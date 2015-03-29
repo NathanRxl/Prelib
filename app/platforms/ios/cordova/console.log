@@ -1,0 +1,64 @@
+2015-03-29 16:47:43.825 prelib[2786:5250757] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/EmileMathieu/Library/Developer/CoreSimulator/Devices/F1CB51CB-3C55-4B69-94C1-B8DFDFE5B577/data/Containers/Data/Application/EF927CAB-5970-4FB1-B093-06592784C821/Library/Cookies/Cookies.binarycookies
+2015-03-29 16:47:44.077 prelib[2786:5250757] Apache Cordova native platform version 3.8.0 is starting.
+2015-03-29 16:47:44.077 prelib[2786:5250757] Multi-tasking -> Device: YES, App: YES
+2015-03-29 16:47:44.091 prelib[2786:5250757] Unlimited access to network resources
+2015-03-29 16:47:44.513 prelib[2786:5250757] [CDVTimer][keyboard] 0.065982ms
+2015-03-29 16:47:44.513 prelib[2786:5250757] [CDVTimer][TotalPluginStartup] 0.254035ms
+2015-03-29 16:47:45.408 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 16:49:38.471 prelib[2786:5250757] Finished load of: file:///Users/EmileMathieu/Library/Developer/CoreSimulator/Devices/F1CB51CB-3C55-4B69-94C1-B8DFDFE5B577/data/Containers/Bundle/Application/EA25C45C-72E5-4C58-8537-F524324FE426/prelib.app/www/index.html#/stations
+2015-03-29 16:51:19.381 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 16:51:19.661 prelib[2786:5251968] NSURLConnection/CFURLConnection HTTP load failed (kCFStreamErrorDomainSSL, -9843)
+2015-03-29 16:51:19.662 prelib[2786:5250757] Failed to load webpage with error: The certificate for this server is invalid. You might be connecting to a server that is pretending to be “maps.apple.com” which could put your confidential information at risk.
+2015-03-29 16:51:20.961 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 16:51:21.261 prelib[2786:5251968] NSURLConnection/CFURLConnection HTTP load failed (kCFStreamErrorDomainSSL, -9843)
+2015-03-29 16:51:21.261 prelib[2786:5250757] Failed to load webpage with error: The certificate for this server is invalid. You might be connecting to a server that is pretending to be “maps.apple.com” which could put your confidential information at risk.
+2015-03-29 16:51:24.009 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 16:51:24.274 prelib[2786:5251968] NSURLConnection/CFURLConnection HTTP load failed (kCFStreamErrorDomainSSL, -9843)
+2015-03-29 16:51:24.275 prelib[2786:5250757] Failed to load webpage with error: The certificate for this server is invalid. You might be connecting to a server that is pretending to be “maps.apple.com” which could put your confidential information at risk.
+2015-03-29 16:51:24.624 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 16:51:24.788 prelib[2786:5251968] NSURLConnection/CFURLConnection HTTP load failed (kCFStreamErrorDomainSSL, -9843)
+2015-03-29 16:51:24.789 prelib[2786:5250757] Failed to load webpage with error: The certificate for this server is invalid. You might be connecting to a server that is pretending to be “maps.apple.com” which could put your confidential information at risk.
+2015-03-29 16:51:24.799 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 16:51:24.911 prelib[2786:5251968] NSURLConnection/CFURLConnection HTTP load failed (kCFStreamErrorDomainSSL, -9843)
+2015-03-29 16:51:24.911 prelib[2786:5250757] Failed to load webpage with error: The certificate for this server is invalid. You might be connecting to a server that is pretending to be “maps.apple.com” which could put your confidential information at risk.
+2015-03-29 16:51:24.979 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 16:51:25.082 prelib[2786:5251968] NSURLConnection/CFURLConnection HTTP load failed (kCFStreamErrorDomainSSL, -9843)
+2015-03-29 16:51:25.082 prelib[2786:5250757] Failed to load webpage with error: The certificate for this server is invalid. You might be connecting to a server that is pretending to be “maps.apple.com” which could put your confidential information at risk.
+2015-03-29 16:51:25.640 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 16:51:25.831 prelib[2786:5251968] NSURLConnection/CFURLConnection HTTP load failed (kCFStreamErrorDomainSSL, -9843)
+2015-03-29 16:51:25.832 prelib[2786:5250757] Failed to load webpage with error: The certificate for this server is invalid. You might be connecting to a server that is pretending to be “maps.apple.com” which could put your confidential information at risk.
+2015-03-29 16:51:26.213 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 16:51:26.483 prelib[2786:5251968] NSURLConnection/CFURLConnection HTTP load failed (kCFStreamErrorDomainSSL, -9843)
+2015-03-29 16:51:26.483 prelib[2786:5250757] Failed to load webpage with error: The certificate for this server is invalid. You might be connecting to a server that is pretending to be “maps.apple.com” which could put your confidential information at risk.
+2015-03-29 17:10:15.710 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 17:10:16.317 prelib[2786:5250757] Failed to load webpage with error: The operation couldn’t be completed. (NSURLErrorDomain error -999.)
+2015-03-29 17:10:16.318 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 17:10:17.135 prelib[2786:5250757] Failed to load webpage with error: The operation couldn’t be completed. (NSURLErrorDomain error -999.)
+2015-03-29 17:10:17.135 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 17:10:40.381 prelib[2786:5250757] Failed to load webpage with error: The operation couldn’t be completed. (NSURLErrorDomain error -999.)
+2015-03-29 17:10:40.389 prelib[2786:5250757] Resetting plugins due to page load.
+2015-03-29 17:11:55.937 prelib[2786:5250757] Failed to load webpage with error: The request timed out.
+2015-03-29 18:05:57.098 prelib[3690:5317728] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/EmileMathieu/Library/Developer/CoreSimulator/Devices/F1CB51CB-3C55-4B69-94C1-B8DFDFE5B577/data/Containers/Data/Application/253CB771-D4D9-4CA8-8FB2-1C07A1B63F74/Library/Cookies/Cookies.binarycookies
+2015-03-29 18:05:57.319 prelib[3690:5317728] Apache Cordova native platform version 3.8.0 is starting.
+2015-03-29 18:05:57.320 prelib[3690:5317728] Multi-tasking -> Device: YES, App: YES
+2015-03-29 18:05:57.329 prelib[3690:5317728] Unlimited access to network resources
+2015-03-29 18:05:57.674 prelib[3690:5317728] [CDVTimer][keyboard] 1.267016ms
+2015-03-29 18:05:57.674 prelib[3690:5317728] [CDVTimer][TotalPluginStartup] 1.466990ms
+2015-03-29 18:05:57.899 prelib[3690:5317728] Resetting plugins due to page load.
+2015-03-29 18:06:05.014 prelib[3690:5317728] Finished load of: file:///Users/EmileMathieu/Library/Developer/CoreSimulator/Devices/F1CB51CB-3C55-4B69-94C1-B8DFDFE5B577/data/Containers/Bundle/Application/0C929B73-C0CF-4DAF-8BD2-0C292A500F3A/prelib.app/www/index.html#/stations
+2015-03-29 18:07:10.959 prelib[3886:5318740] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/EmileMathieu/Library/Developer/CoreSimulator/Devices/F1CB51CB-3C55-4B69-94C1-B8DFDFE5B577/data/Containers/Data/Application/633EEA05-AE76-466A-A9A6-AF62C3DE84AF/Library/Cookies/Cookies.binarycookies
+2015-03-29 18:07:11.050 prelib[3886:5318740] Apache Cordova native platform version 3.8.0 is starting.
+2015-03-29 18:07:11.051 prelib[3886:5318740] Multi-tasking -> Device: YES, App: YES
+2015-03-29 18:07:11.052 prelib[3886:5318740] Unlimited access to network resources
+2015-03-29 18:07:11.252 prelib[3886:5318740] [CDVTimer][keyboard] 0.104010ms
+2015-03-29 18:07:11.252 prelib[3886:5318740] [CDVTimer][TotalPluginStartup] 8.745015ms
+2015-03-29 18:07:11.353 prelib[3886:5318740] Resetting plugins due to page load.
+2015-03-29 18:07:14.226 prelib[3886:5318740] Finished load of: file:///Users/EmileMathieu/Library/Developer/CoreSimulator/Devices/F1CB51CB-3C55-4B69-94C1-B8DFDFE5B577/data/Containers/Bundle/Application/EFBA4633-E469-4AC3-AE85-339999753CB4/prelib.app/www/index.html#/stations
+2015-03-29 21:47:22.277 prelib[5215:6402239] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/EmileMathieu/Library/Developer/CoreSimulator/Devices/F1CB51CB-3C55-4B69-94C1-B8DFDFE5B577/data/Containers/Data/Application/66D24E7B-8E15-4C35-8F38-5B8B23EBE4F3/Library/Cookies/Cookies.binarycookies
+2015-03-29 21:47:22.502 prelib[5215:6402239] Apache Cordova native platform version 3.8.0 is starting.
+2015-03-29 21:47:22.502 prelib[5215:6402239] Multi-tasking -> Device: YES, App: YES
+2015-03-29 21:47:22.515 prelib[5215:6402239] Unlimited access to network resources
+2015-03-29 21:47:22.951 prelib[5215:6402239] [CDVTimer][keyboard] 0.062048ms
+2015-03-29 21:47:22.951 prelib[5215:6402239] [CDVTimer][TotalPluginStartup] 0.248015ms
+2015-03-29 21:47:23.183 prelib[5215:6402239] Resetting plugins due to page load.
+2015-03-29 21:47:25.319 prelib[5215:6402239] Finished load of: file:///Users/EmileMathieu/Library/Developer/CoreSimulator/Devices/F1CB51CB-3C55-4B69-94C1-B8DFDFE5B577/data/Containers/Bundle/Application/966E390B-9B2A-455B-AC82-63789E9D83A5/prelib.app/www/index.html#/stations

@@ -358,12 +358,13 @@ var loadStationsMarkers = function() {
         map.removeLayer(markers1);
         markers1.clearLayers();  
     }
-    
+    //console.log(map.getZoom());
     markers1 = new L.layerGroup();
     var data = $scope.stations;
         console.log('map moved');
         angular.forEach(data, function(station) {
-            if (station.position.lat>=map.getBounds()._southWest.lat && station.position.lat<=map.getBounds()._northEast.lat && station.position.lng>= map.getBounds()._southWest.lng && station.position.lng<= map.getBounds()._northEast.lng) {
+            //console.log(Math.abs(map.getCenter().lat-station.position.lat));
+            if ((map.getZoom()>=15 && station.position.lat>=map.getBounds()._southWest.lat && station.position.lat<=map.getBounds()._northEast.lat && station.position.lng>= map.getBounds()._southWest.lng && station.position.lng<= map.getBounds()._northEast.lng) || map.getZoom()<15 && Math.abs(map.getCenter().lat-station.position.lat)<0.005 && Math.abs(map.getCenter().lng-station.position.lng)<0.01) {
            var marker = L.marker([station.position.lat, station.position.lng],{ clickable:true})
            marker.bindPopup("<b>"+station.name+"</b>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
            //marker.addTo(map);

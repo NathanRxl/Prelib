@@ -90,7 +90,7 @@ html, body, #map {
           <div class="item item-divider">{{nbStationsToDisplay+" stations les plus proches"}}</div>
             <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='tabs.station({stationID: station.number})'>
             <div item-text-wrap class="item-button">	
-            {{station.name.slice(8).split("(")[0]+" (à "+station.distance.toFixed(0)+" m)"}} 
+            {{station.name.slice(8).split("(")[0]+distanceToDisplay(station.distance)}} 
                     
 				    <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
             </div>
@@ -139,8 +139,11 @@ html, body, #map {
       
       <script id="maps.html" type="text/ng-template">
       <ion-view title="Plan">
+      <ion-nav-buttons side="left">
+        <button ng-click="refresh()" class="button button-icon icon ion-refresh"></button>
+    </ion-nav-buttons>
       <ion-nav-buttons side="right">
-        <button ng-click="locate();" class="button button-icon icon ion-pinpoint"></button>
+        <button ng-click="locate()" class="button button-icon icon ion-pinpoint"></button>
     </ion-nav-buttons>
         <ion-content  has-header="true" has-tabs="true" overflow-scroll="true">
           <!--<leaflet markers="markers" center="parisCenter"style="height: 400px; width: 100%;"></leaflet>-->
@@ -154,9 +157,10 @@ html, body, #map {
         <ion-content>
         <div class="item range range-positive">
         <i class="icon ion-ios7-sunny-outline"></i>
-        <input type="range" name="nbStationsToDisplay" min="1" max="10" value="3">
+        <input type="range" name="nbStationsToDisplay" ng-model="data.nbStationsToDisplay"min="1" max="10" value="3">
         <i class="icon ion-ios7-sunny"></i>
         </div>
+        <p>Nombre de stations à afficher : {{data.nbStationsToDisplay}}</p>
         </ion-content>
       </ion-view>
     </script>

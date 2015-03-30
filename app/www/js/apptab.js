@@ -109,15 +109,22 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
     }
 });
 
-app.controller('StationsController', function($scope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
+app.controller('StationsController', function($scope,$rootScope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
     LoaderService.show();
-    $scope.nbStationsToDisplay = 5;
+    if ($rootScope.nbStationsToDisplay!= undefined) { $scope.nbStationsToDisplay = $rootScope.nbStationsToDisplay;}
+    else { $scope.nbStationsToDisplay = 5;}
+    
     $scope.stations = stations;
     
     $scope.formatDate = function(){
         var d = $scope.date;
         if (d!=undefined) { return d.getDate()+"-"+(d.getMonth()+1)+"-"+d.getFullYear()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds(); }
         else { return "calculating...";}
+    }
+    
+     $scope.distanceToDisplay = function(distance){
+        if (distance>=1000) { return "(à "+(distance/1000).toFixed(2)+" km)"; }
+        else { return "(à "+distance.toFixed(0)+" m)"; }
     }
     
     var getNearestStation = function(data) {
@@ -276,36 +283,52 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     
 });
 
-/*app.service('mapService', function($scope) {
-    
+app.service('mapService', function($rootScope) {
     return {
     getCenter: function() {
-        if ($scope.center!=undifined) { return $scope.center; }
+        if ($rootScope.center!=undefined) { return $rootScope.center; }
         else {return null; }
     },
     getZoom: function() {
-        if ($scope.zoom!=undifined) { return $scope.zoom; }
+        if ($rootScope.zoom!=undefined) { return $rootScope.zoom; }
+        else {return null; }
+    },
+    getBounds: function() {
+        if ($rootScope.bounds!=undefined) { return $rootScope.bounds; }
         else {return null; }
     },
     setCenter: function(center) {
-        $scope.center = center;
+        //console.log(center);
+        $rootScope.center = center;
     },
     setZoom: function(zoom) {
-        $scope.zoom = zoom;
+        //console.log(zoom);
+        $rootScope.zoom = zoom;
+    },
+    setBounds: function(bounds) {
+        //console.log(bounds);
+        $rootScope.bounds = bounds;
     }
-  }
-    
-})*/
+    }
+})
 
-app.controller("MapCtrl", function($scope,VelibAPI) {
+app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     
     var map = L.map('map',{ zoomControl:false });
     L.tileLayer('http://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiZW1pbGVtYXRoaWV1IiwiYSI6IkhURVU2SFUifQ.1K2LjZmtAhfY-VmuAKXS_w', {
-			maxZoom: 16/*,
+            zoom : 16,
+			maxZoom: 17,
+            minZoom: 12/*,
 			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
 				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
 				'Imagery © <a href="http://mapbox.com">Mapbox</a>',*/
     }).addTo(map);
+    var centerIcon = L.AwesomeMarkers.icon({
+                    icon: '',
+                    markerColor: 'darkblue',
+                    prefix: 'fa',
+                    html: 'you'
+                });
     
     var markerCenter = L.marker();
     var circleCenter = L.circle();
@@ -316,9 +339,10 @@ app.controller("MapCtrl", function($scope,VelibAPI) {
         circleCenter.setRadius(radius);
         circleCenter.addTo(map);
         markerCenter.setLatLng(e.latlng);
+        markerCenter.setIcon(centerIcon);
         markerCenter.addTo(map);
-        map.setView(markerCenter.getLatLng(),map.getZoom()); 
-        markerCenter.bindPopup("You are within " + radius + " meters from this point").openPopup();
+        map.setView(markerCenter.getLatLng(),16); 
+        markerCenter.bindPopup("You are within " + radius.toFixed(0) + " meters from this point").openPopup();
     }
     map.on('locationfound', onLocationFound);
     
@@ -328,15 +352,24 @@ app.controller("MapCtrl", function($scope,VelibAPI) {
     map.on('locationerror', onLocationError);
     
     $scope.locate = function(){
-        map.locate({setView: true, maxZoom: 16});
+        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
     }
     
-    /*if (mapService.getCenter()!=null && mapService.getZoom()!=null) {
-        map.setView(mapService.getCenter(),mapService.getZoom()); 
+    $scope.refresh = function(){
+        VelibAPI.getStationsfromAPI().success(function(data){ $scope.stations = data;})
+        loadStationsMarkers();
     }
-    else { */
-        map.locate({setView: true, maxZoom: 16});
-    //}
+    
+    if (mapService.getCenter()!=null && mapService.getZoom()!=null) {
+        console.log(mapService.getCenter());
+        console.log(mapService.getZoom());
+        //map.setView(mapService.getCenter(),17); 
+        map.fitBounds(mapService.getBounds());
+        //map.panTo(mapService.getCenter());
+    }
+    else { 
+        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
+    }
     
     VelibAPI.getStationsfromAPI().success(function(data){ $scope.stations = data; })    
  
@@ -344,7 +377,7 @@ app.controller("MapCtrl", function($scope,VelibAPI) {
     var markers2 = new L.layerGroup();
     
     var loadStationsMarkers = function() {
-        console.log('map moved');
+        console.log('markers reloaded');
         if (markers1.getLayers().length>0) {
             map.removeLayer(markers1);
             markers1.clearLayers();  
@@ -374,9 +407,18 @@ app.controller("MapCtrl", function($scope,VelibAPI) {
     
      map.on('moveend', function(e) {
         loadStationsMarkers();
-        //mapService.setZoom(map.getZoom());
-        //mapService.setCenter(map.getCenter());
+        mapService.setZoom(map.getZoom());
+        mapService.setCenter(map.getCenter());
+        mapService.setBounds(map.getBounds());
     });
+})
+
+app.controller("settingsCtrl", function($scope,$rootScope) {
+    if ($rootScope.nbStationsToDisplay == undefined) {$scope.data = { 'nbStationsToDisplay' : '5' };}
+    else {$scope.data = { 'nbStationsToDisplay' :  $rootScope.nbStationsToDisplay};}
+    $scope.$watch('data.nbStationsToDisplay', function() {
+        $rootScope.nbStationsToDisplay = $scope.data.nbStationsToDisplay;
+    })
 })
 
 app.config(function($stateProvider,$urlRouterProvider) {
@@ -427,7 +469,8 @@ app.config(function($stateProvider,$urlRouterProvider) {
       url: "/settings",
       views: {
         'settings-tab': {
-          templateUrl: "settings.html"
+          templateUrl: "settings.html",
+            controller: "settingsCtrl"
         }
       }
   })

@@ -276,56 +276,37 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     
 });
 
+/*app.service('mapService', function($scope) {
+    
+    return {
+    getCenter: function() {
+        if ($scope.center!=undifined) { return $scope.center; }
+        else {return null; }
+    },
+    getZoom: function() {
+        if ($scope.zoom!=undifined) { return $scope.zoom; }
+        else {return null; }
+    },
+    setCenter: function(center) {
+        $scope.center = center;
+    },
+    setZoom: function(zoom) {
+        $scope.zoom = zoom;
+    }
+  }
+    
+})*/
+
 app.controller("MapCtrl", function($scope,VelibAPI) {
     
-    /*$scope.locate = function(){
-
-        var onGeolocationSuccess = function(position) {
-            console.log('map geoloc successfull');
-            $scope.center = {
-                lat:position.coords.latitude,
-                lng:position.coords.longitude,
-                zoom: 15
-            };
-            console.log($scope.center);
-            $scope.marker = {
-              lat:position.coords.latitude,
-              lng:position.coords.longitude,
-              message: "You Are Here",
-              focus: true,
-              draggable: false
-            };
-	   };
-
-	   var onError = function(error) {
-		alert('code: '    + error.code    + '\n' +
-			 'message: ' + error.message + '\n' +
-              'You need to accept geolocalisation to use this application'
-             );
-           console.log('map geoloc failed');
-	   }
-
-        navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onError,{enableHighAccuracy: true});
-        console.log($scope.center);
-      };*/
-    
-    
-    var map = L.map('map');
-
+    var map = L.map('map',{ zoomControl:false });
     L.tileLayer('http://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiZW1pbGVtYXRoaWV1IiwiYSI6IkhURVU2SFUifQ.1K2LjZmtAhfY-VmuAKXS_w', {
-			maxZoom: 18/*,
+			maxZoom: 16/*,
 			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
 				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
 				'Imagery © <a href="http://mapbox.com">Mapbox</a>',*/
     }).addTo(map);
     
-    $scope.locate = function(){
-        map.locate({setView: true, maxZoom: 16});
-    }
-    
-    
-    map.locate({setView: true, maxZoom: 16});
-    //var markerCenter = L.marker(map.getCenter()).addTo(map);
     var markerCenter = L.marker();
     var circleCenter = L.circle();
     
@@ -338,64 +319,64 @@ app.controller("MapCtrl", function($scope,VelibAPI) {
         markerCenter.addTo(map);
         map.setView(markerCenter.getLatLng(),map.getZoom()); 
         markerCenter.bindPopup("You are within " + radius + " meters from this point").openPopup();
-        }
-
+    }
     map.on('locationfound', onLocationFound);
+    
     function onLocationError(e) {
         alert(e.message);
     }
     map.on('locationerror', onLocationError);
-
-
-var markers1 = new L.layerGroup();
-var markers2 = new L.layerGroup();
-
-VelibAPI.getStationsfromAPI().success(function(data){ $scope.stations = data; })    
     
-var loadStationsMarkers = function() {
-    if (markers1.getLayers().length>0) {
-        map.removeLayer(markers1);
-        markers1.clearLayers();  
+    $scope.locate = function(){
+        map.locate({setView: true, maxZoom: 16});
     }
-    //console.log(map.getZoom());
-    markers1 = new L.layerGroup();
-    var data = $scope.stations;
+    
+    /*if (mapService.getCenter()!=null && mapService.getZoom()!=null) {
+        map.setView(mapService.getCenter(),mapService.getZoom()); 
+    }
+    else { */
+        map.locate({setView: true, maxZoom: 16});
+    //}
+    
+    VelibAPI.getStationsfromAPI().success(function(data){ $scope.stations = data; })    
+ 
+    var markers1 = new L.layerGroup();
+    var markers2 = new L.layerGroup();
+    
+    var loadStationsMarkers = function() {
         console.log('map moved');
-        angular.forEach(data, function(station) {
-            //console.log(Math.abs(map.getCenter().lat-station.position.lat));
-            if ((map.getZoom()>=15 && station.position.lat>=map.getBounds()._southWest.lat && station.position.lat<=map.getBounds()._northEast.lat && station.position.lng>= map.getBounds()._southWest.lng && station.position.lng<= map.getBounds()._northEast.lng) || map.getZoom()<15 && Math.abs(map.getCenter().lat-station.position.lat)<0.005 && Math.abs(map.getCenter().lng-station.position.lng)<0.01) {
-           var marker = L.marker([station.position.lat, station.position.lng],{ clickable:true})
-           marker.bindPopup("<b>"+station.name.slice(8)+"</b>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
-           //marker.addTo(map);
-           markers1.addLayer(marker);
+        if (markers1.getLayers().length>0) {
+            map.removeLayer(markers1);
+            markers1.clearLayers();  
+        }
+        markers1 = new L.layerGroup();
+        angular.forEach($scope.stations, function(station) {
+            var stationShouldBeDispayedInlargeZoom = map.getZoom()>=15 && station.position.lat>=map.getBounds()._southWest.lat && station.position.lat<=map.getBounds()._northEast.lat && station.position.lng>= map.getBounds()._southWest.lng && station.position.lng<= map.getBounds()._northEast.lng;
+            var stationShouldBeDispayedInSmallZoom = map.getZoom()<15 && Math.abs(map.getCenter().lat-station.position.lat)<0.005 && Math.abs(map.getCenter().lng-station.position.lng)<0.01;
+            if (stationShouldBeDispayedInlargeZoom || stationShouldBeDispayedInSmallZoom) {
+                var color;
+                if (station.available_bikes==0) {color='red';}
+                else if (station.available_bikes==station.bike_stands)  {color='orange';}
+                else  {color='lightblue';}
+                var customIcon = L.AwesomeMarkers.icon({
+                    icon: '',
+                    markerColor: color,
+                    prefix: 'fa',
+                    html: station.available_bikes
+                }); 
+                var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
+                marker.bindPopup("<b>"+station.name.slice(8)+"</b>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
+                markers1.addLayer(marker);
             }
         })
-    map.addLayer(markers1);
-}
+        map.addLayer(markers1);
+    }
     
-map.on('moveend', function(e) {
-   loadStationsMarkers();
-});
-    
-    /*angular.extend($scope, {
-        parisCenter: {
-            lat: 48.858093,
-            lng: 2.294694,
-            zoom: 12
-        },
-        markers: {
-            9007: {
-                lat: 48.87983122511022,
-                lng: 2.345396338986368,
-                message: "CONDORCET",
-                focus: true,
-                draggable: false
-            }
-        },
-        defaults: {
-            scrollWheelZoom: false
-        }
-    });*/
+     map.on('moveend', function(e) {
+        loadStationsMarkers();
+        //mapService.setZoom(map.getZoom());
+        //mapService.setCenter(map.getCenter());
+    });
 })
 
 app.config(function($stateProvider,$urlRouterProvider) {

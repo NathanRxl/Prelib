@@ -267,7 +267,7 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
         return first + "-" + $scope.station.address.split("-")[1];
     }
     
-    var devList = new Array(50);
+    var devList = new Array($scope.station.available_bikes+1);
     for (var i = 0; i < devList.length; i++) { devList[i]={name: i, id: i}; }
     $scope.devList = devList;
     

@@ -314,7 +314,10 @@ app.service('mapService', function($rootScope) {
 
 app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     
-    var map = L.map('map',{ zoomControl:false });
+    var map;
+    if (map == undefined) { 
+    console.log('initializing map');
+    map = L.map('map',{ zoomControl:false });
     L.tileLayer('http://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiZW1pbGVtYXRoaWV1IiwiYSI6IkhURVU2SFUifQ.1K2LjZmtAhfY-VmuAKXS_w', {
             zoom : 16,
 			maxZoom: 17,
@@ -323,6 +326,9 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
 				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
 				'Imagery © <a href="http://mapbox.com">Mapbox</a>',*/
     }).addTo(map);
+    }
+    
+    
     var centerIcon = L.AwesomeMarkers.icon({
                     icon: '',
                     markerColor: 'darkblue',
@@ -332,6 +338,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     
     var markerCenter = L.marker();
     var circleCenter = L.circle();
+    
     
     function onLocationFound(e) {
         var radius = e.accuracy / 2;
@@ -361,10 +368,9 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     }
     
     if (mapService.getCenter()!=null && mapService.getZoom()!=null) {
-        console.log(mapService.getCenter());
-        console.log(mapService.getZoom());
+        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
         //map.setView(mapService.getCenter(),17); 
-        map.fitBounds(mapService.getBounds());
+        //map.fitBounds(mapService.getBounds());
         //map.panTo(mapService.getCenter());
     }
     else { 

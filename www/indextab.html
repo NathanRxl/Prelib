@@ -90,8 +90,8 @@ html, body, #map {
         <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
         
           <ion-list>
-          <div class="item item-divider">{{nbStationsToDisplay+" stations les plus proches"}}</div>
-            <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='tabs.station({stationID: station.number})'>
+          <div class="item item-divider" >{{nbStationsToDisplay+" stations les plus proches"}}</div>
+            <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='tabs.station({stationID: station.number})' ng-style="{'background-color':backgroundColor(station)}">
             <div item-text-wrap class="item-button">	
             {{station.name.slice(8).split("(")[0]+" "+distanceToDisplay(station.distance)}} 
                     
@@ -106,7 +106,7 @@ html, body, #map {
     <script type="text/ng-template" id="station.html">
       <ion-view item-text-wrap title={{station.name.slice(8).split("(")[0]}}>
         <ion-content>
-            <div class="item item-divider"> <i class="icon ion-information-circled"></i> Informations de la station</div>
+            <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-information-circled"></i> Informations de la station</div>
             <a class="item item-icon-left item-text-wrap" href={{mapsUrl}}>
                 <i class="icon ion-map"></i>
                 <span>{{formatAddress()}}</span>
@@ -122,7 +122,7 @@ html, body, #map {
                 <span>{{station.available_bikes+" / "+station.bike_stands}}</span>
             </a>
             <!--<button class="button button-full button-light icon-left ion-checkmark-circled ">{{station.available_bikes}} / {{station.bike_stands}}</button>-->
-            <div class="item item-divider"> <i class="icon ion-alert-circled"></i> Signaler un Velib' cassé</div>
+            <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-alert-circled"></i> Signaler un Velib' cassé</div>
             <label class="item item-input item-select">
                 <div class="input-label">Sélectionnez le nombre</div>
                 <select ng-model="chosen" ng-options="item as item.name for item in devList" ng-change="report(station.number,chosen.id)"></select>

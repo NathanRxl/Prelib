@@ -51,14 +51,14 @@ app.factory('PrelibAPI_local', function($http) {
   return {
     report: function(stationName,numberOfBike){
       return $http({
-    url: 'localhost:8000/add_report', 
+    url: 'localhost:8000/report/add_report', 
     method: "POST",
-    params: {stationName:station_id, numberOfBike:broken_bikes}
+    params: {station_id:stationId, broken_bikes:numberOfBike}
     })
     },
         getPredictionOfStations: function(stationId){
             return $http({
-    url: 'plocalhost:8000/models', 
+    url: 'localhost:8000/report', 
     method: "POST",
     params: {stationName:stationId}
     })

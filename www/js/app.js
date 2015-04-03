@@ -45,6 +45,27 @@ app.factory('PrelibAPI', function($http) {
 	}
 })
 
+
+//Fonction permettant un signalement en local
+app.factory('PrelibAPI_local', function($http) {
+  return {
+    report: function(stationName,numberOfBike){
+      return $http({
+    url: 'localhost:8000/report/add_report', 
+    method: "POST",
+    params: {station_id:stationId, broken_bikes:numberOfBike}
+    })
+    },
+        getPredictionOfStations: function(stationId){
+            return $http({
+    url: 'localhost:8000/report', 
+    method: "POST",
+    params: {stationName:stationId}
+    })
+    }
+  }
+})
+
 app.factory('VelibAPI', function($http) {
 
 	return {

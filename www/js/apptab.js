@@ -330,15 +330,22 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     
     
     var centerIcon = L.AwesomeMarkers.icon({
-                    icon: '',
-                    markerColor: 'darkblue',
-                    prefix: 'fa',
-                    html: 'you'
+                    icon: 'ion-person',
+                    markerColor: 'lightgray',
+                    prefix: 'ion',
+                    html: ''
                 });
     
     var markerCenter = L.marker();
     var circleCenter = L.circle();
     
+    VelibAPI.getStationsfromAPI().success(function(data){
+        $scope.stations = data;
+        loadStationsMarkers2();
+    })    
+ 
+    var markers1 = new L.layerGroup();
+    var markers2 = new L.layerGroup();
     
     function onLocationFound(e) {
         var radius = e.accuracy / 2;
@@ -364,23 +371,11 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     
     $scope.refresh = function(){
         VelibAPI.getStationsfromAPI().success(function(data){ $scope.stations = data;})
-        loadStationsMarkers();
+        //loadStationsMarkers();
+        loadStationsMarkers2();
     }
     
-    if (mapService.getCenter()!=null && mapService.getZoom()!=null) {
-        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
-        //map.setView(mapService.getCenter(),17); 
-        //map.fitBounds(mapService.getBounds());
-        //map.panTo(mapService.getCenter());
-    }
-    else { 
-        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
-    }
     
-    VelibAPI.getStationsfromAPI().success(function(data){ $scope.stations = data; })    
- 
-    var markers1 = new L.layerGroup();
-    var markers2 = new L.layerGroup();
     
     var loadStationsMarkers = function() {
         console.log('markers reloaded');
@@ -410,13 +405,62 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
         })
         map.addLayer(markers1);
     }
-    
-     map.on('moveend', function(e) {
-        loadStationsMarkers();
-        mapService.setZoom(map.getZoom());
-        mapService.setCenter(map.getCenter());
-        mapService.setBounds(map.getBounds());
+
+    var loadStationsMarkers2 = function() {
+        console.log('loadStationsMarkers2');
+    markers2 = new L.MarkerClusterGroup({disableClusteringAtZoom: 16, iconCreateFunction: function (cluster) {
+				var markers = cluster.getAllChildMarkers();
+				var number = 0;
+				for (var i = 0; i < markers.length; i++) {
+					number += markers[i].number;
+				}
+                number = (100*number/markers.length).toFixed(0);
+				var c = ' marker-cluster-';
+                if (number > 50) { c += 'lightblue';}
+                else if (number > 20) {c += 'beige';} 
+                else { c += 'lightred';}
+		      return new L.DivIcon({ html: '<div><span>' + number +'%'+ '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+			}
     });
+
+    angular.forEach($scope.stations, function(station) {
+        var color;
+        var ratio = (station.available_bikes/station.bike_stands).toFixed(2);
+        if (ratio > 0.5) {color='lightblue';}
+        else if (ratio > 0.20)  {color='beige';}
+        else  {color='lightred';}
+        var customIcon = L.AwesomeMarkers.icon({
+              icon: '',
+              markerColor: color,
+              prefix: 'fa',
+              html: station.available_bikes
+        }); 
+        var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
+        marker.number = station.available_bikes/station.bike_stands;
+        marker.bindPopup("<b>"+station.name.slice(8)+"</b>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
+        markers2.addLayer(marker);        
+    })
+    map.addLayer(markers2);
+    }
+        
+     map.on('moveend', function(e) {
+        //loadStationsMarkers();
+         //loadStationsMarkers2();
+        //mapService.setZoom(map.getZoom());
+        //mapService.setCenter(map.getCenter());
+        //mapService.setBounds(map.getBounds());
+    });
+    
+    if (mapService.getCenter()!=null && mapService.getZoom()!=null) {
+        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
+        
+        //map.setView(mapService.getCenter(),17); 
+        //map.fitBounds(mapService.getBounds());
+        //map.panTo(mapService.getCenter());
+    }
+    else {
+        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
+    }
 })
 
 app.controller("settingsCtrl", function($scope,$rootScope) {

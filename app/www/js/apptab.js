@@ -127,6 +127,14 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
         else { return "(à "+distance.toFixed(0)+" m)"; }
     }
     
+    $scope.backgroundColor = function(station){
+        var ratio = (station.available_bikes/station.bike_stands).toFixed(2);
+        if (ratio > 0.5) {return "rgba(165, 217, 254, 0.9) !important";}
+        else if (ratio > 0.20)  {return "rgba(241, 202, 148, 0.9) !important";}
+        else  {return "rgba(229, 141, 127, 0.9) !important";}
+    }
+     
+    
     var getNearestStation = function(data) {
 			$scope.stations = data;
 			var stationPosition;
@@ -237,6 +245,10 @@ app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
 app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,station){
     
     $scope.station = station;
+    var ratio = ($scope.station.available_bikes/$scope.station.bike_stands).toFixed(2);
+    if (ratio > 0.5) {$scope.backgroundColor="rgba(165, 217, 254, 0.9)";}
+    else if (ratio > 0.20)  {$scope.backgroundColor="rgba(241, 202, 148, 0.9)";}
+    else  {$scope.backgroundColor="rgba(229, 141, 127, 0.9)";}
     
     function showAlert(numberOfBike) {
         var textToDisplay = "";
@@ -328,7 +340,6 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     }).addTo(map);
     }
     
-    
     var centerIcon = L.AwesomeMarkers.icon({
                     icon: 'ion-person',
                     markerColor: 'lightgray',
@@ -356,7 +367,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
         markerCenter.setIcon(centerIcon);
         markerCenter.addTo(map);
         map.setView(markerCenter.getLatLng(),16); 
-        markerCenter.bindPopup("You are within " + radius.toFixed(0) + " meters from this point").openPopup();
+        //markerCenter.bindPopup("You are within " + radius.toFixed(0) + " meters from this point").openPopup();
     }
     map.on('locationfound', onLocationFound);
     
@@ -371,11 +382,8 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     
     $scope.refresh = function(){
         VelibAPI.getStationsfromAPI().success(function(data){ $scope.stations = data;})
-        //loadStationsMarkers();
         loadStationsMarkers2();
     }
-    
-    
     
     var loadStationsMarkers = function() {
         console.log('markers reloaded');
@@ -437,14 +445,13 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
         }); 
         var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
         marker.number = station.available_bikes/station.bike_stands;
-        marker.bindPopup("<b>"+station.name.slice(8)+"</b>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
+        marker.bindPopup("<a href='#/tab/stations/"+station.number+"'"+"})>"+station.name.slice(8)+"</a>"+"<br>"+station.available_bikes+" / "+station.bike_stands); //ui-sref='tabs.station({stationID: "+station.number+
         markers2.addLayer(marker);        
     })
     map.addLayer(markers2);
     }
         
      map.on('moveend', function(e) {
-        //loadStationsMarkers();
          //loadStationsMarkers2();
         //mapService.setZoom(map.getZoom());
         //mapService.setCenter(map.getCenter());

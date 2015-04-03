@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
     <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
     <link rel="stylesheet" href="css/leaflet.awesome-markers.css">
+    <link rel="stylesheet" href="css/MarkerCluster.css" />
+	<link rel="stylesheet" href="css/MarkerCluster.Default.css" />
 
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
     <link href="css/ionic.app.css" rel="stylesheet">
@@ -33,6 +35,7 @@
       <script src="js/leaflet.awesome-markers.js"></script>
    <!-- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script> -->
     <script src="js/angular-leaflet-directive.min.js"></script>
+    <script src="js/leaflet.markercluster-src.js"></script>
   </head>
     
 <style media="screen" type="text/css">
@@ -90,7 +93,7 @@ html, body, #map {
           <div class="item item-divider">{{nbStationsToDisplay+" stations les plus proches"}}</div>
             <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='tabs.station({stationID: station.number})'>
             <div item-text-wrap class="item-button">	
-            {{station.name.slice(8).split("(")[0]+distanceToDisplay(station.distance)}} 
+            {{station.name.slice(8).split("(")[0]+" "+distanceToDisplay(station.distance)}} 
                     
 				    <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
             </div>

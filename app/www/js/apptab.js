@@ -382,7 +382,6 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     
    $scope.isInversed= false;
     $scope.updateNeed = function() {
-        console.log($scope.isInversed);
         loadStationsMarkers2();
     }
     
@@ -421,7 +420,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     }
 
     var loadStationsMarkers2 = function() {
-        console.log('loadStationsMarkers2');
+        if (markers2 != undefined) { map.removeLayer(markers2); }
     markers2 = new L.MarkerClusterGroup({disableClusteringAtZoom: 16, iconCreateFunction: function (cluster) {
 				var markers = cluster.getAllChildMarkers();
                 var ratio;

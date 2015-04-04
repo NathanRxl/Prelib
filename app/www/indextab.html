@@ -89,7 +89,6 @@ html, body, #map {
       <ion-header-bar  class="bar bar-subheader eventBar">{{"Dernière mise à jour: "+formatDate()}}</ion-header-bar>
         <ion-content >
         <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
-        <ion-toggle ng-model="airplaneMode" toggle-class="toggle-calm">Airplane Mode</ion-toggle>
           <ion-list>
           <div class="item item-divider" >{{nbStationsToDisplay+" stations les plus proches"}}</div>
             <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='tabs.station({stationID: station.number})'>

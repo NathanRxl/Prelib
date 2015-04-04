@@ -35,7 +35,8 @@
       <script src="js/leaflet.awesome-markers.js"></script>
    <!-- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script> -->
     <script src="js/angular-leaflet-directive.min.js"></script>
-    <script src="js/leaflet.markercluster-src.js"></script>
+    <script src="js/leaflet.markercluster-src.js"></script>      
+
   </head>
     
 <style media="screen" type="text/css">
@@ -64,7 +65,7 @@ html, body, #map {
       </ion-nav-back-button>
     </ion-nav-bar>
     <ion-nav-view animation="slide-left-right"></ion-nav-view>
-
+      
     <script  type="text/ng-template" id="tabs.html">
       <ion-tabs class="tabs-icon-top tabs-positive">
 
@@ -88,11 +89,11 @@ html, body, #map {
       <ion-header-bar  class="bar bar-subheader eventBar">{{"Dernière mise à jour: "+formatDate()}}</ion-header-bar>
         <ion-content >
         <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
-        
+        <ion-toggle ng-model="airplaneMode" toggle-class="toggle-calm">Airplane Mode</ion-toggle>
           <ion-list>
           <div class="item item-divider" >{{nbStationsToDisplay+" stations les plus proches"}}</div>
-            <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='tabs.station({stationID: station.number})' ng-style="{'background-color':backgroundColor(station)}">
-            <div item-text-wrap class="item-button">	
+            <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='tabs.station({stationID: station.number})'>
+            <div item-text-wrap class="item-button" ng-style="{'background-color':backgroundColor(station)}">	
             {{station.name.slice(8).split("(")[0]+" "+distanceToDisplay(station.distance)}} 
                     
 				    <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
@@ -141,16 +142,25 @@ html, body, #map {
     </script>
       
       <script id="maps.html" type="text/ng-template">
-      <ion-view title="Plan">
-      <ion-nav-buttons side="left">
-        <button ng-click="refresh()" class="button button-icon icon ion-refresh"></button>
-    </ion-nav-buttons>
+      <ion-view title="">
+      
+      <!-- <ion-nav-buttons side="left"> <button ng-click="refresh()" class="button button-icon icon ion-refresh"></button> </ion-nav-buttons> -->
       <ion-nav-buttons side="right">
         <button ng-click="locate()" class="button button-icon icon ion-pinpoint"></button>
-    </ion-nav-buttons>
+        </ion-nav-buttons>
+        <ion-nav-buttons side="left">
+        <label class="toggle toggle-stable" >
+            <input type="checkbox" ng-model="isInversed" ng-change="updateNeed()">
+            <div class="track"> <div class="handle"></div> </div>
+        </label></ion-nav-buttons>
         <ion-content has-header="true" has-tabs="true" overflow-scroll="true">
          <!-- <leaflet id="map" data-tap-disabled="true" style="height: 100%"></leaflet> -->
           <div id="map" data-tap-disabled="true" style="height: 100%"></div>
+       
+    
+    <br>
+    
+    <h4> Index selected: {{selectedIndex}}</h4>
         </ion-content>
       </ion-view>
     </script>
@@ -164,6 +174,7 @@ html, body, #map {
         <i class="icon ion-ios7-sunny"></i>
         </div>
         <p>Nombre de stations à afficher : {{data.nbStationsToDisplay}}</p>
+        
         </ion-content>
       </ion-view>
     </script>

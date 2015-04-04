@@ -367,7 +367,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
         markerCenter.setIcon(centerIcon);
         markerCenter.addTo(map);
         map.setView(markerCenter.getLatLng(),16); 
-        //markerCenter.bindPopup("You are within " + radius.toFixed(0) + " meters from this point").openPopup();
+        markerCenter.bindPopup("You are within " + radius.toFixed(0) + " meters from this point");
     }
     map.on('locationfound', onLocationFound);
     
@@ -378,6 +378,12 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     
     $scope.locate = function(){
         map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
+    }
+    
+   $scope.isInversed= false;
+    $scope.updateNeed = function() {
+        console.log($scope.isInversed);
+        loadStationsMarkers2();
     }
     
     $scope.refresh = function(){
@@ -418,22 +424,32 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
         console.log('loadStationsMarkers2');
     markers2 = new L.MarkerClusterGroup({disableClusteringAtZoom: 16, iconCreateFunction: function (cluster) {
 				var markers = cluster.getAllChildMarkers();
-				var number = 0;
+                var ratio;
+				var totalAvailable = 0;
+                var totalCapacity = 0;
 				for (var i = 0; i < markers.length; i++) {
-					number += markers[i].number;
+					totalAvailable += markers[i].available;
+                    totalCapacity += markers[i].capacity;
 				}
-                number = (100*number/markers.length).toFixed(0);
+                ratio = (100*totalAvailable/totalCapacity).toFixed(0);
+            if ($scope.isInversed) { ratio = 100 - ratio; }
 				var c = ' marker-cluster-';
-                if (number > 50) { c += 'lightblue';}
-                else if (number > 20) {c += 'beige';} 
+                if (ratio > 50) { c += 'lightblue';}
+                else if (ratio > 20) {c += 'beige';} 
                 else { c += 'lightred';}
-		      return new L.DivIcon({ html: '<div><span>' + number +'%'+ '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+            if (ratio < 100) { ratio = ratio + '%';}
+		      return new L.DivIcon({ html: '<div><span>' + ratio + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
 			}
     });
 
     angular.forEach($scope.stations, function(station) {
-        var color;
+        var color,textOnMArker;
         var ratio = (station.available_bikes/station.bike_stands).toFixed(2);
+        if ($scope.isInversed) {
+            ratio = 1 - ratio;
+            textOnMArker = station.bike_stands-station.available_bikes;
+        }
+        else { textOnMArker = station.available_bikes; }
         if (ratio > 0.5) {color='lightblue';}
         else if (ratio > 0.20)  {color='beige';}
         else  {color='lightred';}
@@ -441,11 +457,14 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
               icon: '',
               markerColor: color,
               prefix: 'fa',
-              html: station.available_bikes
+              html: textOnMArker
         }); 
         var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
-        marker.number = station.available_bikes/station.bike_stands;
-        marker.bindPopup("<a href='#/tab/stations/"+station.number+"'"+"})>"+station.name.slice(8)+"</a>"+"<br>"+station.available_bikes+" / "+station.bike_stands); //ui-sref='tabs.station({stationID: "+station.number+
+        marker.available = station.available_bikes;
+        marker.capacity = station.bike_stands;
+        marker.bindPopup("<a style='text-decoration: none' href='#/tabs/stations/"+station.number+"'>"+station.name.slice(8)+"</a>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
+        //ui-sref='tabs.station({stationID: "+station.number+ "})
+        
         markers2.addLayer(marker);        
     })
     map.addLayer(markers2);
@@ -481,7 +500,7 @@ app.controller("settingsCtrl", function($scope,$rootScope) {
 app.config(function($stateProvider,$urlRouterProvider) {
   $stateProvider
   .state('tabs', {
-      url: "/tab",
+      url: "/tabs",
       abstract: true,
       templateUrl: "tabs.html"
     })
@@ -531,5 +550,5 @@ app.config(function($stateProvider,$urlRouterProvider) {
         }
       }
   })
-    $urlRouterProvider.otherwise("/tab/stations");
+    $urlRouterProvider.otherwise("/tabs/stations");
 });          

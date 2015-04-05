@@ -24,47 +24,23 @@ app.run(function($ionicPlatform) {
 })
 
 app.factory('PrelibAPI', function($http) {
-
-	return {
-		report: function(stationName,numberOfBike){
-			return $http({
-    url: 'prelib-api.herokuapp.com/create_report', 
-    method: "POST",
-    params: {stationName:stationName, numberOfBike:numberOfBike}
-    })
-		},
-        
-        getPredictionOfStations: function(stationId){
+    return {
+        report: function(stationId,numberOfBike){
             return $http({
-    url: 'prelib-api.herokuapp.com/stations', 
-    method: "POST",
-    params: {stationName:stationId}
-    })
-		}
-	}
-})
-
-
-//Fonction permettant un signalement en local
-app.factory('PrelibAPI_local', function($http) {
-  return {
-    report: function(stationName,numberOfBike){
-      return $http({
-    url: 'localhost:8000/report/', 
+    url: 'prelib-api.herokuapp.com/report', 
     method: "POST",
     params: {station_id:stationId, broken_bikes:numberOfBike}
     })
-    },
+        },
         getPredictionOfStations: function(stationId){
             return $http({
-    url: 'localhost:8000/report', 
+    url: 'prelib-api.herokuapp.com/report', 
     method: "POST",
-    params: {stationName:stationId}
+    params: {station_id:stationId}
     })
+        }
     }
-  }
 })
-
 
 app.factory('VelibAPI', function($http) {
 

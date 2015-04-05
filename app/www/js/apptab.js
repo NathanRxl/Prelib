@@ -133,7 +133,31 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
         else if (ratio > 0.20)  {return "rgba(241, 202, 148, 0.9) !important";}
         else  {return "rgba(229, 141, 127, 0.9) !important";}
     }
+    
+    
      
+    $scope.searchQuery = '';
+    $scope.isSearching = false;
+    
+    $scope.clearSearch = function() {
+        console.log('clearSearch');
+        $scope.searchQuery = '';
+        $scope.isSearching = false;
+        console.log($scope.isSearching);
+    };
+    
+    $scope.showSearch = function() {
+        console.log('showSearch');
+        $scope.isSearching = true;
+        console.log($scope.isSearching);
+    };
+    
+    $scope.hideSearch = function() {
+        console.log('hideSearch');
+        $scope.isSearching = false;
+        $scope.clearSearch();
+        console.log($scope.isSearching);
+    };
     
     var getNearestStation = function(data) {
 			$scope.stations = data;
@@ -347,7 +371,8 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
                     html: ''
                 });
     
-    var markerCenter = L.marker();
+    //var markerCenter = L.marker();
+    var markerCenter = L.userMarker({smallIcon:true});
     var circleCenter = L.circle();
     
     VelibAPI.getStationsfromAPI().success(function(data){
@@ -360,11 +385,13 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     
     function onLocationFound(e) {
         var radius = e.accuracy / 2;
-        circleCenter.setLatLng(e.latlng);
-        circleCenter.setRadius(radius);
-        circleCenter.addTo(map);
+        //circleCenter.setLatLng(e.latlng);
+        //circleCenter.setRadius(radius);
+        //circleCenter.addTo(map);
         markerCenter.setLatLng(e.latlng);
-        markerCenter.setIcon(centerIcon);
+        markerCenter.setAccuracy(e.accuracy);
+        markerCenter.setPulsing(true);
+        //markerCenter.setIcon(centerIcon);
         markerCenter.addTo(map);
         map.setView(markerCenter.getLatLng(),16); 
         markerCenter.bindPopup("You are within " + radius.toFixed(0) + " meters from this point");

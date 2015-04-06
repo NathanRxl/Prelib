@@ -24,24 +24,22 @@ app.run(function($ionicPlatform) {
 })
 
 app.factory('PrelibAPI', function($http) {
-
-	return {
-		report: function(stationName,numberOfBike){
-			return $http({
-    url: 'prelib-api.herokuapp.com/create_report', 
+    return {
+        report: function(stationId,numberOfBike){
+            return $http({
+    url: 'prelib-api.herokuapp.com/report', 
     method: "POST",
-    params: {stationName:stationName, numberOfBike:numberOfBike}
+    params: {station_id:stationId, broken_bikes:numberOfBike}
     })
-		},
-        
+        },
         getPredictionOfStations: function(stationId){
             return $http({
-    url: 'prelib-api.herokuapp.com/stations', 
+    url: 'prelib-api.herokuapp.com/report', 
     method: "POST",
-    params: {stationName:stationId}
+    params: {station_id:stationId}
     })
-		}
-	}
+        }
+    }
 })
 
 app.factory('VelibAPI', function($http) {

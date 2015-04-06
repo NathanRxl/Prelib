@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 # Specifies intentionally untracked files to ignore when using Git
 # http://git-scm.com/docs/gitignore
 
 node_modules/
 platforms/
 plugins/
+=======
+*.pyc
+*.pyo
+/report/__pycache__/*
+/report/migrations/__pycache__/*
+/django_prelib/__pycache__/*
+>>>>>>> 9ca683a11d978993b32970a6f7431883878156d7

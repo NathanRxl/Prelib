@@ -24,21 +24,19 @@ app.run(function($ionicPlatform) {
 })
 
 app.factory('PrelibAPI', function($http) {
-
 	return {
-		report: function(stationName,numberOfBike){
+		report: function(stationId,numberOfBike){
 			return $http({
-    url: 'prelib-api.herokuapp.com/create_report', 
-    method: "POST",
-    params: {stationName:stationName, numberOfBike:numberOfBike}
+    url: 'https://prelib-api.herokuapp.com/report/'+stationId+'/'+numberOfBike+'/', 
+    method: "GET"//,
+    //params: {station_id:stationId, broken_bikes:numberOfBike}
     })
 		},
-        
         getPredictionOfStations: function(stationId){
             return $http({
     url: 'prelib-api.herokuapp.com/stations', 
     method: "POST",
-    params: {stationName:stationId}
+    params: {station_id:stationId}
     })
 		}
 	}
@@ -134,28 +132,19 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
         else  {return "rgba(229, 141, 127, 0.9) !important";}
     }
     
-    
-     
     $scope.searchQuery = '';
     $scope.isSearching = false;
     
     $scope.clearSearch = function() {
         console.log('clearSearch');
         $scope.searchQuery = '';
-        $scope.isSearching = false;
         console.log($scope.isSearching);
     };
     
-    $scope.showSearch = function() {
+    $scope.showOrHideSearch = function() {
         console.log('showSearch');
-        $scope.isSearching = true;
-        console.log($scope.isSearching);
-    };
-    
-    $scope.hideSearch = function() {
-        console.log('hideSearch');
-        $scope.isSearching = false;
-        $scope.clearSearch();
+        if ($scope.isSearching == false) { $scope.isSearching = true; }
+        else { $scope.isSearching = false; }
         console.log($scope.isSearching);
     };
     
@@ -208,17 +197,20 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
     $localstorage.setObject('last_connection',date);
     var diff = date - last_connection;
         
-    if (last_connection != null && $localstorage.get('stations') != null && diff < 10000){
+    if (last_connection != null && $localstorage.get('stations') != null && diff < 20000){
         console.log("stations data load from storage");
         $scope.stations = JSON.parse($localstorage.get('stations'));
+        $ionicLoading.hide();
     }
-    else if(last_connection != null && $localstorage.get('stations') != null && diff < 20000){
+    else if(last_connection != null && $localstorage.get('stations') != null && diff < 60000){
         navigator.geolocation.getCurrentPosition(onGeolocationSuccessDistancedRecomputed, onError,{enableHighAccuracy: true});
+        $ionicLoading.hide();
     }
     else {
         navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
+        $ionicLoading.hide();
     }
-    $ionicLoading.hide();  	
+      	
 	
 });
 
@@ -348,7 +340,7 @@ app.service('mapService', function($rootScope) {
     }
 })
 
-app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
+app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage) {
     
     var map;
     if (map == undefined) { 
@@ -375,10 +367,11 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     var markerCenter = L.userMarker({smallIcon:true});
     var circleCenter = L.circle();
     
-    VelibAPI.getStationsfromAPI().success(function(data){
-        $scope.stations = data;
-        loadStationsMarkers2();
-    })    
+    var date = new Date().getTime();
+    $scope.date = new Date();
+    var last_connection = $localstorage.getObject('last_connection');
+    $localstorage.setObject('last_connection',date);
+    var diff = date - last_connection;
  
     var markers1 = new L.layerGroup();
     var markers2 = new L.layerGroup();
@@ -407,9 +400,12 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
         map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
     }
     
-   $scope.isInversed= false;
+    $scope.isInversed= false;
+    $scope.title = "<i class='icon ion-reply'></i> Pick Up";
     $scope.updateNeed = function() {
         loadStationsMarkers2();
+        if ($scope.title == "<i class='icon ion-reply'></i> Pick Up") {$scope.title = "<i class='icon ion-forward'></i> Drop Off";}
+        else {$scope.title = "<i class='icon ion-reply'></i> Pick Up"; }
     }
     
     $scope.refresh = function(){
@@ -512,6 +508,18 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService) {
     }
     else {
         map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
+    }
+    
+    if (last_connection != null && $localstorage.get('stations') != null && diff < 100000){
+        console.log("stations data load from storage");
+        $scope.stations = JSON.parse($localstorage.get('stations'));
+        loadStationsMarkers2();
+    }
+    else {
+    VelibAPI.getStationsfromAPI().success(function(data){
+        $scope.stations = data;
+        loadStationsMarkers2();
+    })
     }
 })
 

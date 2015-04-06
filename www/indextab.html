@@ -90,7 +90,7 @@ html, body, #map {
    
       <ion-view title="Prelib'">
       <ion-nav-buttons side="right">
-        <button ng-click="showSearch()" class="button button-icon icon ion-search"></button>
+        <button ng-click="showOrHideSearch()" class="button button-icon icon ion-search"></button>
         </ion-nav-buttons>
       <ion-header-bar  class="bar bar-subheader eventBar">{{"Dernière mise à jour: "+formatDate()}}</ion-header-bar>
     
@@ -100,9 +100,9 @@ html, body, #map {
         <div class="item-input-wrapper">
           <i class="icon ion-ios7-search placeholder-icon"></i>
           <input type="search" placeholder="Search" ng-model="searchQuery">
-          <i class="clear-search icon ion-ios7-close-empty" ng-click="clearSearch()"></i>
+          <i class="clear-search icon ion-ios7-close-empty" ng-model="searchQuery" ng-click="clearSearch()"></i>
         </div>
-        <button class="button button-clear">
+        <button class="button button-clear" ng-click="showOrHideSearch()">
           Cancel
         </button>
       </div>
@@ -119,8 +119,8 @@ html, body, #map {
             </div>
         </ion-item>
         </ion-list>
-        <ion-list ng-hide=!isSearching>
-        <div class="item item-divider">{{"Recherche..."}}</div>
+        <ion-list ng-if=isSearching>
+        <!-- <div class="item item-divider">"Recherche..."</div> -->
         <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : 2000| filter :  {$:searchQuery} track by station.number" ui-sref='tabs.station({stationID: station.number})'>
             <div item-text-wrap class="item-button" ng-style="{'background-color':backgroundColor(station)}">	
             {{station.name.slice(8).split("(")[0]+" "+distanceToDisplay(station.distance)}} 
@@ -171,7 +171,7 @@ html, body, #map {
     </script>
       
       <script id="maps.html" type="text/ng-template">
-      <ion-view title="">
+      <ion-view title={{title}}>
       
       <!-- <ion-nav-buttons side="left"> <button ng-click="refresh()" class="button button-icon icon ion-refresh"></button> </ion-nav-buttons> -->
       <ion-nav-buttons side="right">

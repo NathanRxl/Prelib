@@ -148,7 +148,8 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
     
     $scope.showSearch = function() {
         console.log('showSearch');
-        $scope.isSearching = true;
+        if ($scope.isSearching == false) { $scope.isSearching = true; }
+        else { $scope.isSearching = false; }
         console.log($scope.isSearching);
     };
     

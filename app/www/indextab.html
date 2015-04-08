@@ -197,7 +197,15 @@ html, body, #map {
         <i class="icon ion-minus-circled"></i>
         <input type="range" name="nbStationsToDisplay" ng-model="data.nbStationsToDisplay"min="1" max="20" value="5">
         <i class="icon ion-plus-circled"></i> {{' ' + data.nbStationsToDisplay}}
-        </div>        
+        </div> 
+        <div class="item item-divider" >Ville</div>
+        <label class="item item-input item-select">
+                <div class="input-label">Changer de ville</div>
+        <select ng-model="chosen" ng-options="item.name group by item.country_code for item in contracts track by item.name" ng-change="changeContract(chosen.name)">{{chosen.name}}</select>
+        <!--<select ng-model="selectedItem" ng-change="changeContract(selectedItem)">
+        <option ng-repeat="group by contract.country_code for contract in contracts | orderBy: 'name' " value="{{contract.name}}">{{contract.name}}</option>
+      </select>-->
+        </label>
         </ion-content>
       </ion-view>
     </script>

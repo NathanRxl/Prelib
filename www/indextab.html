@@ -121,7 +121,7 @@ html, body, #map {
         </ion-list>
         <ion-list ng-if=isSearching>
         <!-- <div class="item item-divider">"Recherche..."</div> -->
-        <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : 2000| filter :  {$:searchQuery} track by station.number" ui-sref='tabs.station({stationID: station.number})'>
+        <ion-item ng-repeat="station in stations | filter :  {name:searchQuery} track by station.number" ui-sref='tabs.station({stationID: station.number})'>
             <div item-text-wrap class="item-button" ng-style="{'background-color':backgroundColor(station)}">	
             {{station.name.slice(8).split("(")[0]+" "+distanceToDisplay(station.distance)}} 
                     
@@ -137,7 +137,7 @@ html, body, #map {
       <ion-view item-text-wrap title={{station.name.slice(8).split("(")[0]}}>
         <ion-content>
             <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-information-circled"></i> Informations de la station</div>
-            <a class="item item-icon-left item-text-wrap" href={{mapsUrl}}>
+            <a class="item item-icon-left item-text-wrap" ng-click=showMapChoices()>
                 <i class="icon ion-map"></i>
                 <span>{{formatAddress()}}</span>
             </a>
@@ -197,7 +197,15 @@ html, body, #map {
         <i class="icon ion-minus-circled"></i>
         <input type="range" name="nbStationsToDisplay" ng-model="data.nbStationsToDisplay"min="1" max="20" value="5">
         <i class="icon ion-plus-circled"></i> {{' ' + data.nbStationsToDisplay}}
-        </div>        
+        </div> 
+        <div class="item item-divider" >Ville</div>
+        <label class="item item-input item-select">
+                <div class="input-label">Changer de ville</div>
+        <select ng-model="chosen" ng-options="item.name group by item.country_code for item in contracts track by item.name" ng-change="changeContract(chosen.name)">{{chosen.name}}</select>
+        <!--<select ng-model="selectedItem" ng-change="changeContract(selectedItem)">
+        <option ng-repeat="group by contract.country_code for contract in contracts | orderBy: 'name' " value="{{contract.name}}">{{contract.name}}</option>
+      </select>-->
+        </label>
         </ion-content>
       </ion-view>
     </script>

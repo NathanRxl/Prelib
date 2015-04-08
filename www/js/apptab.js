@@ -45,18 +45,25 @@ app.factory('PrelibAPI', function($http) {
 app.factory('VelibAPI', function($http) {
 
 	return {
-		getStationsfromAPI: function(){
+		getStationsfromAPI: function(contractValue){
 			return $http({
     url: 'https://api.jcdecaux.com/vls/v1/stations', 
     method: "GET",
-    params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
+    params: {contract:contractValue, apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
     })
 		},
-        getStationfromAPI: function(id){
+        getStationfromAPI: function(contractValue,id){
 			return $http({
     url: 'https://api.jcdecaux.com/vls/v1/stations/'+id, 
     method: "GET",
-    params: {contract:'Paris', apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
+    params: {contract:contractValue, apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
+    })
+		},
+        getListContractfromAPI: function(){
+			return $http({
+    url: 'https://api.jcdecaux.com/vls/v1/contracts', 
+    method: "GET",
+    params: {apiKey: '9bf9a1b35a26563496adb00c856e095664084c78'}
     })
 		}
 	}
@@ -111,7 +118,7 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
     LoaderService.show();
     if ($rootScope.nbStationsToDisplay!= undefined) { $scope.nbStationsToDisplay = $rootScope.nbStationsToDisplay;}
     else { $scope.nbStationsToDisplay = 5;}
-    
+   
     $scope.stations = stations;
     
     $scope.formatDate = function(){
@@ -157,7 +164,7 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
 			   distanceToStation = google.maps.geometry.spherical.computeDistanceBetween($scope.userPosition, stationPosition);
 			   $scope.stations[i].distance = distanceToStation;
 			}
-            $localstorage.setObject('stations',data);
+            $localstorage.setObject("stations"+$rootScope.contract,data);
     }
     
     var onGeolocationSuccessDistancedRecomputed = function(position) {
@@ -166,7 +173,7 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
         $scope.date = new Date();
         $localstorage.setObject('last_connection',new Date().getTime());
         console.log("stations data load from storage but distance recomputed");
-        var data = JSON.parse($localstorage.get('stations'));
+        var data = $localstorage.getObject("stations"+$rootScope.contract);
         getNearestStation(data);
 	};
     
@@ -176,7 +183,7 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
         $scope.date = new Date();
         $localstorage.setObject('last_connection',new Date().getTime());
         console.log("all recomputed");
-        VelibAPI.getStationsfromAPI().success(function(data){getNearestStation(data); });
+        VelibAPI.getStationsfromAPI($rootScope.contract).success(function(data){getNearestStation(data); });
 	};
 
 	var onError = function(error) {
@@ -197,12 +204,12 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
     $localstorage.setObject('last_connection',date);
     var diff = date - last_connection;
         
-    if (last_connection != null && $localstorage.get('stations') != null && diff < 20000){
+    if (last_connection != null && $localstorage.getObject("stations"+$rootScope.contract) != null && diff < 20000){
         console.log("stations data load from storage");
-        $scope.stations = JSON.parse($localstorage.get('stations'));
+        $scope.stations = JSON.parse($localstorage.get("stations"+$rootScope.contract));
         $ionicLoading.hide();
     }
-    else if(last_connection != null && $localstorage.get('stations') != null && diff < 60000){
+    else if(last_connection != null && $localstorage.getObject("stations"+$rootScope.contract) != null && diff < 60000){
         navigator.geolocation.getCurrentPosition(onGeolocationSuccessDistancedRecomputed, onError,{enableHighAccuracy: true});
         $ionicLoading.hide();
     }
@@ -214,9 +221,12 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
 	
 });
 
-app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
+app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI,$rootScope) {
     LoaderService.show();
    
+    if ($rootScope.contract == undefined && $localstorage.get('contract')==null) { $rootScope.contract = 'Paris';}
+    else if ($rootScope.contract == undefined && $localstorage.get('contract') != null) {$rootScope.contract = $localstorage.get('contract');}
+    console.log($rootScope.contract);
     var stationsData = null;
     
   return {
@@ -227,15 +237,9 @@ app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
     },
     getStation: function(todoId) {
         console.log("getStation");
-      /*var dfd = $q.defer()
-      this.stations.forEach(function(station) {
-        if (station.number == todoId) {
-            dfd.resolve(station)}
-      })
-      return dfd.promise*/
-        if ($localstorage.get('stations') != null) {
+        if ($localstorage.getObject("stations"+$rootScope.contract) != null) {
         console.log("NOT NULL");
-        stationsData = JSON.parse($localstorage.get('stations'));
+        stationsData = $localstorage.getObject("stations"+$rootScope.contract);
         var dfd = $q.defer()
         stationsData.forEach(function(station) {
         if (station.number == todoId) {
@@ -245,7 +249,7 @@ app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
     }
     else {
         console.log("NULL");
-        VelibAPI.getStationsfromAPI().success(function(data){
+        VelibAPI.getStationsfromAPI($rootScope.contract).success(function(data){
             stationsData = data;
             var dfd = $q.defer()
              stationsData.forEach(function(station) {
@@ -258,7 +262,7 @@ app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI) {
     }
   }
 })
-app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,station){
+app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,$ionicActionSheet,$state,station){
     
     $scope.station = station;
     var ratio = ($scope.station.available_bikes/$scope.station.bike_stands).toFixed(2);
@@ -309,6 +313,33 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     else if (isWindowsPhone) { mapsUrl = "maps:saddr=Current+Location&daddr="+$scope.station.position.lat+","+$scope.station.position.lng; }
     $scope.mapsUrl = mapsUrl;
     
+    // Triggered on a button click, or some other target
+    $scope.showMapChoices = function() {
+
+   // Show the action sheet
+   var hideSheet = $ionicActionSheet.show({
+     buttons: [
+       { text: 'Native maps' },
+       { text: 'Prelib map' }
+     ],
+     //destructiveText: 'Delete',
+     titleText: 'Where to visualize this station ?',
+     cancelText: 'Cancel',
+     cancel: function() {
+        },
+     buttonClicked: function(index) {
+         console.log(index);
+         if (index == 0) {window.location.href = mapsUrl;}
+         else if (index == 1) {
+             //$state.go('tabs.maps');
+             $state.transitionTo('tabs.maps', {stationID: $scope.station.number});
+         }
+       return true;
+     }
+   });
+
+ };
+    
 });
 
 app.service('mapService', function($rootScope) {
@@ -340,7 +371,11 @@ app.service('mapService', function($rootScope) {
     }
 })
 
-app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage) {
+app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$stateParams,$q,$rootScope) {
+    
+    console.log($rootScope.contract);
+    if ($rootScope.contract == undefined) { $rootScope.contract = 'Paris';}
+    console.log($rootScope.contract);
     
     var map;
     if (map == undefined) { 
@@ -349,7 +384,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage) {
     L.tileLayer('http://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiZW1pbGVtYXRoaWV1IiwiYSI6IkhURVU2SFUifQ.1K2LjZmtAhfY-VmuAKXS_w', {
             zoom : 16,
 			maxZoom: 17,
-            minZoom: 10/*,
+            minZoom: 6/*,
 			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
 				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
 				'Imagery © <a href="http://mapbox.com">Mapbox</a>',*/
@@ -409,7 +444,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage) {
     }
     
     $scope.refresh = function(){
-        VelibAPI.getStationsfromAPI().success(function(data){ $scope.stations = data;})
+        VelibAPI.getStationsfromAPI($rootScope.contract).success(function(data){ $scope.stations = data;})
         loadStationsMarkers2();
     }
     
@@ -435,7 +470,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage) {
                     html: station.available_bikes
                 }); 
                 var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
-                marker.bindPopup("<b>"+station.name.slice(8)+"</b>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
+                marker.bindPopup("<b>"+station.name.slice(8)+"</b>"+"<br>"+"Bikes:"+station.available_bikes+" /Stands:"+station.bike_stands);
                 markers1.addLayer(marker);
             }
         })
@@ -444,7 +479,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage) {
 
     var loadStationsMarkers2 = function() {
         if (markers2 != undefined) { map.removeLayer(markers2); }
-    markers2 = new L.MarkerClusterGroup({disableClusteringAtZoom: 16, iconCreateFunction: function (cluster) {
+    markers2 = new L.MarkerClusterGroup({disableClusteringAtZoom: 15, iconCreateFunction: function (cluster) {
 				var markers = cluster.getAllChildMarkers();
                 var ratio;
 				var totalAvailable = 0;
@@ -499,36 +534,83 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage) {
         //mapService.setBounds(map.getBounds());
     });
     
-    if (mapService.getCenter()!=null && mapService.getZoom()!=null) {
+    if ($stateParams.stationID == undefined || $stateParams.stationID == '' || $stateParams.stationID == null) {
+        console.log('$stateParams.stationID not defined')
+        console.log($stateParams.stationID);
         map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
-        
+        if (last_connection != null && $localstorage.getObject("stations"+$rootScope.contract) != null && diff < 100000){
+            console.log("stations data load from storage");
+            $scope.stations = $localstorage.getObject("stations"+$rootScope.contract);
+            loadStationsMarkers2();
+        }
+        else {
+            console.log(mapService.getCenter());
+            VelibAPI.getStationsfromAPI($rootScope.contract).success(function(data){
+                $scope.stations = data;
+                loadStationsMarkers2();
+             })
+        }
         //map.setView(mapService.getCenter(),17); 
         //map.fitBounds(mapService.getBounds());
         //map.panTo(mapService.getCenter());
     }
     else {
-        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
-    }
+        console.log('$stateParams.stationID defined')
+        console.log($stateParams.stationID);
+        if (last_connection != null && $localstorage.get("stations"+$rootScope.contract) != null && diff < 100000){
+            console.log("stations data load from storage");
+            $scope.stations = $localstorage.get("stations"+$rootScope.contract);
+            loadStationsMarkers2();
+            $scope.stations.forEach(function(station) {
+            if (station.number == $stateParams.stationID) {
+                    console.log({lat:station.position.lat,lng:station.position.lng});
+                    map.setView({lat:station.position.lat,lng:station.position.lng},10,{reset :true});
+                    console.log(map.getCenter());}
+            })
+            
+        }
+        else {
+            VelibAPI.getStationsfromAPI($rootScope.contract).success(function(data){
+                $scope.stations = data;
+                loadStationsMarkers2();
+                $scope.stations.forEach(function(station) {
+                if (station.number == $stateParams.stationID) { 
+                    console.log({lat:station.position.lat,lng:station.position.lng});
+                    map.setView({lat:station.position.lat,lng:station.position.lng},10,{reset :true});
+                    console.log(map.getCenter());
+                }
+                })
+                
+            })
+        }
+        
+    }   
     
-    if (last_connection != null && $localstorage.get('stations') != null && diff < 100000){
-        console.log("stations data load from storage");
-        $scope.stations = JSON.parse($localstorage.get('stations'));
-        loadStationsMarkers2();
-    }
-    else {
-    VelibAPI.getStationsfromAPI().success(function(data){
-        $scope.stations = data;
-        loadStationsMarkers2();
-    })
-    }
 })
 
-app.controller("settingsCtrl", function($scope,$rootScope) {
+app.controller("settingsCtrl", function($scope,$rootScope,$localstorage,VelibAPI) {
     if ($rootScope.nbStationsToDisplay == undefined) {$scope.data = { 'nbStationsToDisplay' : '5' };}
     else {$scope.data = { 'nbStationsToDisplay' :  $rootScope.nbStationsToDisplay};}
     $scope.$watch('data.nbStationsToDisplay', function() {
         $rootScope.nbStationsToDisplay = $scope.data.nbStationsToDisplay;
     })
+    
+    if ($rootScope.contract != undefined) { $scope.chosen = {name:$rootScope.contract} };
+    
+    if ($localstorage.getObject('contracts') == undefined) {
+        VelibAPI.getListContractfromAPI().success(function(data){
+            $scope.contracts = data;
+            $localstorage.setObject('contracts',data);
+        });
+    }
+    else {
+        $scope.contracts = $localstorage.getObject('contracts');
+    }
+    $scope.changeContract = function(item){
+        console.log(item);
+        $rootScope.contract = item;
+        $localstorage.set('contract',item);
+    };
 })
 
 app.config(function($stateProvider,$urlRouterProvider) {
@@ -567,7 +649,7 @@ app.config(function($stateProvider,$urlRouterProvider) {
     }
   })
   .state('tabs.maps', {
-      url: "/maps",
+      url: "/maps:stationID",
       views: {
         'maps-tab': {
           templateUrl: "maps.html",

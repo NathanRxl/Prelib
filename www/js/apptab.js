@@ -38,13 +38,7 @@ app.factory('PrelibAPI', function($http) {
     method: "POST",
     params: {station_id:stationId}
     })
-		},
-    getLast: function(stationId){
-            return $http({
-        url: 'https://prelib-api.herokuapp.com/report/'+stationId+'/', 
-        method: "GET"
-        })
-    }
+		}
 	}
 })
 
@@ -594,7 +588,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
     
 })
 
-app.controller("settingsCtrl", function($scope,$rootScope,$localstorage,VelibAPI) {
+app.controller("settingsCtrl", function($scope,$rootScope,$localstorage,$ionicPopup,$http,VelibAPI) {
     if ($rootScope.nbStationsToDisplay == undefined) {$scope.data = { 'nbStationsToDisplay' : '5' };}
     else {$scope.data = { 'nbStationsToDisplay' :  $rootScope.nbStationsToDisplay};}
     $scope.$watch('data.nbStationsToDisplay', function() {
@@ -617,7 +611,42 @@ app.controller("settingsCtrl", function($scope,$rootScope,$localstorage,VelibAPI
         $rootScope.contract = item;
         $localstorage.set('contract',item);
     };
+
+    $scope.sendFeedback=function(){
+        $ionicPopup.prompt({
+        title: 'Votre commentaire',
+        template: 'Envoyez nous vos remarques:',
+        inputPlaceholder: 'Votre commentaire',
+        cancelText: 'Précédent'
+        }).then(function(res) {
+            return $http({
+            url: 'https://mandrillapp.com/api/1.0/messages/send.json', 
+            method: "POST",
+            data:{
+                "key":"yym9tA_1xFDZXQubN5yZrg",
+                "message":{
+                    "text":res,
+                    "subject":"Feedback",
+                    "from_email":"utilisateur@prelib.com",
+                    "to":[
+                    {
+                        "email":"teamprelib@gmail.com",
+                        "name":"Prelib",
+                        "type":"to"
+                    }
+                    ],
+                "autotext":null            
+                }
+            }
+                 }).done(function(response) {
+   console.log(response); // if you're into that sorta thing
+ });
+             console.log('Your password is', res);
+ });
+    }
 })
+
+
 
 app.config(function($stateProvider,$urlRouterProvider) {
   $stateProvider

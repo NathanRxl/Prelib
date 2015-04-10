@@ -34,7 +34,8 @@
       
      <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
       <script src="js/leaflet.awesome-markers.js"></script>
-   <!-- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script> -->
+
+    
     <script src="js/angular-leaflet-directive.min.js"></script>
     <script src="js/leaflet.markercluster-src.js"></script>
     <script src="js/leaflet.usermarker.js"></script>
@@ -152,7 +153,7 @@ html, body, #map {
                 <span>{{station.available_bikes+" / "+station.bike_stands}}</span>
             </a>
             <!--<button class="button button-full button-light icon-left ion-checkmark-circled ">{{station.available_bikes}} / {{station.bike_stands}}</button>-->
-            <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-alert-circled"></i> Signaler un Velib' cassé</div>
+            <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-alert-circled"></i> Signaler un Velib cassé</div>
             <label class="item item-input item-select">
                 <div class="input-label">Sélectionnez le nombre</div>
                 <select ng-model="chosen" ng-options="item as item.name for item in devList" ng-change="report(station.number,chosen.id)"></select>
@@ -200,12 +201,18 @@ html, body, #map {
         </div> 
         <div class="item item-divider" >Ville</div>
         <label class="item item-input item-select">
+        
                 <div class="input-label">Changer de ville</div>
         <select ng-model="chosen" ng-options="item.name group by item.country_code for item in contracts track by item.name" ng-change="changeContract(chosen.name)">{{chosen.name}}</select>
         <!--<select ng-model="selectedItem" ng-change="changeContract(selectedItem)">
         <option ng-repeat="group by contract.country_code for contract in contracts | orderBy: 'name' " value="{{contract.name}}">{{contract.name}}</option>
       </select>-->
         </label>
+      
+        <a class="item item-icon-left" ng-click="sendFeedback()">
+         <i class="icon ion-chatbubble-working"></i>
+          Contactez nous!
+        </a>
         </ion-content>
       </ion-view>
     </script>

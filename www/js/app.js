@@ -42,8 +42,15 @@ app.factory('PrelibAPI', function($http) {
     params: {station_id:stationId}
     })
 		}
+    last_report: function(stationId){
+            return $http({
+        url: 'https://prelib-api.herokuapp.com/report/'+stationId+'/', 
+        method: "GET",
+        })
+    }
 	}
 })
+
 
 
 app.factory('VelibAPI', function($http) {

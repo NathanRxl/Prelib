@@ -39,6 +39,12 @@ app.factory('PrelibAPI', function($http) {
     params: {station_id:stationId}
     })
 		}
+    getLast: function(stationId){
+            return $http({
+        url: 'https://prelib-api.herokuapp.com/report/'+stationId+'/', 
+        method: "GET"
+        })
+    }
 	}
 })
 

@@ -535,7 +535,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
         var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
         marker.available = station.available_bikes;
         marker.capacity = station.bike_stands;
-        marker.bindPopup("<a style='text-decoration: none' href='#/tabs/stations/"+station.number+"'>"+station.name.slice(8)+"</a>"+"<br>"+station.available_bikes+" / "+station.bike_stands);
+        marker.bindPopup("<div style='display:inline-block;margin:0px;margin-left:-1em;margin-bottom:-1em;margin-top:-0.5em;margin-right:-1em'> <div style='display:inline-block;margin-right:0.5em'> <i class='icon ion-star energized' style='font-size: 3em'></i> </div> <div style='display:inline-block;text-align:center;'> <a style='text-decoration: none' href='#/tabs/stations/"+station.number+"'>"+station.name.slice(8)+"</a>"+"<br>"+station.available_bikes+" / "+station.bike_stands+"</div></div>");
         //ui-sref='tabs.station({stationID: "+station.number+ "})
         
         markers2.addLayer(marker);        
@@ -620,8 +620,6 @@ app.controller("Fav",function($scope,$rootScope,$localstorage){
     $scope.fav.splice($scope.fav.indexOf(item), 1);
     $localstorage.setObject("favorites",$scope.fav)
   };
-  
-
    
 })
 

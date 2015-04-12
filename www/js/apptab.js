@@ -515,7 +515,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
               markerColor: color,
               prefix: 'fa',
               html: textOnMArker
-        }); 
+        });
         var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
         marker.available = station.available_bikes;
         marker.capacity = station.bike_stands;
@@ -559,13 +559,12 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
         console.log($stateParams.stationID);
         if (last_connection != null && $localstorage.get("stations"+$rootScope.contract) != null && diff < 100000){
             console.log("stations data load from storage");
-            $scope.stations = $localstorage.get("stations"+$rootScope.contract);
+            $scope.stations = $localstorage.getObject("stations"+$rootScope.contract);
             loadStationsMarkers2();
             $scope.stations.forEach(function(station) {
             if (station.number == $stateParams.stationID) {
-                    console.log({lat:station.position.lat,lng:station.position.lng});
                     map.setView({lat:station.position.lat,lng:station.position.lng},10,{reset :true});
-                    console.log(map.getCenter());}
+            }
             })
             
         }
@@ -575,9 +574,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
                 loadStationsMarkers2();
                 $scope.stations.forEach(function(station) {
                 if (station.number == $stateParams.stationID) { 
-                    console.log({lat:station.position.lat,lng:station.position.lng});
                     map.setView({lat:station.position.lat,lng:station.position.lng},10,{reset :true});
-                    console.log(map.getCenter());
                 }
                 })
                 

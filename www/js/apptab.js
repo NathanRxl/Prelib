@@ -343,7 +343,6 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
    $scope.addtoFav= function(idStation) {
         console.log("added to Favorites",idStation)
         var fav=$localstorage.getObject('favorites');
-        //var fav=$localstorage.setObject('favorites',idStation);
         if(fav==null)
             { fav=[idStation];
               $localstorage.setObject('favorites',fav);}
@@ -352,7 +351,6 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
         $localstorage.setObject('favorites',fav);}
         console.log("list_fav",fav)
         return fav;
-
    };
 
     
@@ -464,6 +462,10 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
         loadStationsMarkers2();
     }
     
+    $scope.addtoFav = function() {
+     console.log("added to Favorites")     
+   };
+    
     var loadStationsMarkers = function() {
         console.log('markers reloaded');
         if (markers1.getLayers().length>0) {
@@ -535,7 +537,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
         var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
         marker.available = station.available_bikes;
         marker.capacity = station.bike_stands;
-        marker.bindPopup("<div style='display:inline-block;margin:0px;margin-left:-1em;margin-bottom:-1em;margin-top:-0.5em;margin-right:-1em'> <div style='display:inline-block;margin-right:0.5em'> <i class='icon ion-star energized' style='font-size: 3em'></i> </div> <div style='display:inline-block;text-align:center;'> <a style='text-decoration: none' href='#/tabs/stations/"+station.number+"'>"+station.name.slice(8)+"</a>"+"<br>"+station.available_bikes+" / "+station.bike_stands+"</div></div>");
+        marker.bindPopup("<div style='display:inline-block;margin:0px;margin-left:-1em;margin-bottom:-1em;margin-top:-0.5em;margin-right:-1em'> <div ng-click='addtoFav()' style='display:inline-block;margin-right:0.5em'> <a class='icon ion-star energized' style='font-size: 3em'></a> </div> <div style='display:inline-block;text-align:center;'> <a style='text-decoration: none' href='#/tabs/stations/"+station.number+"'>"+station.name.slice(8)+"</a>"+"<br>"+station.available_bikes+" / "+station.bike_stands+"</div></div>");
         //ui-sref='tabs.station({stationID: "+station.number+ "})
         
         markers2.addLayer(marker);        

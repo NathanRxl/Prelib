@@ -116,9 +116,10 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
 
 app.controller('StationsController', function($scope,$rootScope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
     LoaderService.show();
-    if ($rootScope.nbStationsToDisplay!= undefined) { $scope.nbStationsToDisplay = $rootScope.nbStationsToDisplay;}
+    if ($rootScope.nbStationsToDisplay!= undefined) 
+        { $scope.nbStationsToDisplay = $rootScope.nbStationsToDisplay;}
     else { $scope.nbStationsToDisplay = 5;}
-   
+    $localstorage.setObject('nb_to_display',$scope.nbStationsToDisplay);
     $scope.stations = stations;
     
     $scope.formatDate = function(){
@@ -337,8 +338,23 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
        return true;
      }
    });
+    }
 
- };
+   $scope.addtoFav= function(idStation) {
+        console.log("added to Favorites",idStation)
+        var fav=$localstorage.getObject('favorites');
+        //var fav=$localstorage.setObject('favorites',idStation);
+        if(fav==null)
+            { fav=[idStation];
+              $localstorage.setObject('favorites',fav);}
+        else
+            {fav.push(idStation)
+        $localstorage.setObject('favorites',fav);}
+        console.log("list_fav",fav)
+        return fav;
+
+   };
+
     
 });
 
@@ -588,6 +604,30 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
     
 })
 
+app.controller("Fav",function($scope,$rootScope,$localstorage){
+        var fav=$localstorage.getObject('favorites')
+        console.log(fav)
+        $scope.fav=fav;
+
+        $scope.elem = {
+            showDelete: false
+    };
+    
+  $scope.moveItem = function(item, fromIndex, toIndex) {
+    $scope.fav.splice(fromIndex, 1);
+    $scope.fav.splice(toIndex, 0, item);
+    $localstorage.setObject("favorites",$scope.fav)
+  };
+  
+  $scope.onItemDelete = function(item) {
+    $scope.fav.splice($scope.fav.indexOf(item), 1);
+    $localstorage.setObject("favorites",$scope.fav)
+  };
+  
+
+   
+})
+
 app.controller("settingsCtrl", function($scope,$rootScope,$localstorage,$ionicPopup,$http,VelibAPI) {
     if ($rootScope.nbStationsToDisplay == undefined) {$scope.data = { 'nbStationsToDisplay' : '5' };}
     else {$scope.data = { 'nbStationsToDisplay' :  $rootScope.nbStationsToDisplay};}
@@ -643,7 +683,16 @@ app.controller("settingsCtrl", function($scope,$rootScope,$localstorage,$ionicPo
  });
              console.log('Your password is', res);
  });
+    };
+
+    $scope.aPropos=function(){
+        $ionicPopup.alert({
+            title:'A propos',
+            template:'Application réalisée par <br>'+'  -Emile Mathieu<br>'+'  -Thomas Pesneaut<br>'
+                    +'  -Nathan Rouxel <br>'+'  -Dany Srage <br><br>'+'Avec la collaboration de Theodo'
+        })
     }
+
 })
 
 
@@ -683,6 +732,15 @@ app.config(function($stateProvider,$urlRouterProvider) {
       }
     }
   })
+  .state('tabs.favorites', {
+      url: "/favorites",
+      views: {
+        'favorites-tab': {
+          templateUrl: "favorites.html",
+          controller: "Fav"
+        }
+      }
+    })
   .state('tabs.maps', {
       url: "/maps:stationID",
       views: {

@@ -76,6 +76,10 @@ html, body, #map {
           <ion-nav-view name="stations-tab"></ion-nav-view>
         </ion-tab>
 
+        <ion-tab title="Favorites" icon="ion-star" ui-sref="tabs.favorites">
+          <ion-nav-view name="favorites-tab"></ion-nav-view>
+        </ion-tab>
+
         <ion-tab title="Maps" icon="ion-map" ui-sref="tabs.maps">
           <ion-nav-view name="maps-tab"></ion-nav-view>
         </ion-tab>
@@ -136,6 +140,9 @@ html, body, #map {
 
     <script type="text/ng-template" id="station.html">
       <ion-view item-text-wrap title={{station.name.slice(8).split("(")[0]}}>
+          <ion-nav-buttons side="right">
+            <button ng-click="addtoFav(station)" class="button button-icon icon ion-star"></button>
+          </ion-nav-buttons>
         <ion-content>
             <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-information-circled"></i> Informations de la station</div>
             <a class="item item-icon-left item-text-wrap" ng-click=showMapChoices()>
@@ -190,6 +197,28 @@ html, body, #map {
       </ion-view>
     </script>
       
+      <script id="favorites.html" type="text/ng-template">
+      <ion-view title="Favorites">
+      <ion-nav-buttons side="left">
+        <button class="button button-icon icon ion-minus-circled"
+          ng-click="elem.showDelete = !elem.showDelete; elem.showReorder = false"></button></ion-nav-buttons>
+           <ion-nav-buttons side="right">
+          <button class="button" ng-click="elem.showDelete = false; elem.showReorder = !elem.showReorder">
+            Reorder
+        </button></ion-nav-buttons>
+    <ion-content>
+      <ion-list show-delete="elem.showDelete" show-reorder="elem.showReorder">
+        <ion-item ng-repeat="station in fav" station="station" class="item-remove-animate" ui-sref="tabs.station({stationID: station.number})">
+             {{station.name.slice(8).split("(")[0]}}
+              <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
+          <ion-delete-button class="ion-minus-circled" ng-click="onItemDelete(station)"></ion-delete-button>
+          <ion-reorder-button class ="ion-navicon" on-reorder="moveItem(station, $fromIndex,$toIndex)"></ion-reorder-button>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+    </ion-view>
+      </script>
+
       <script id="settings.html" type="text/ng-template">
       <ion-view title="Options">
         <ion-content>
@@ -212,6 +241,10 @@ html, body, #map {
         <a class="item item-icon-left" ng-click="sendFeedback()">
          <i class="icon ion-chatbubble-working"></i>
           Contactez nous!
+        </a>
+        <a class="item item-icon-left" ng-click="aPropos()">
+         <i class="icon ion-help-circled"></i>
+          A propos
         </a>
         </ion-content>
       </ion-view>

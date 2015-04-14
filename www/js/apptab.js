@@ -346,6 +346,18 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
    });
     }
 
+    $scope.isadded=function(idStation){
+        var isadded=true
+        var fav=$localstorage.getObject('favorites')
+        var favnumber=[]
+        for(var iter=0;iter<fav.length;iter++)
+            {favnumber[iter]=fav[iter].number}
+        var bool=favnumber.indexOf(idStation.number)
+        console.log("bool",bool)
+        if(bool!=-1){isadded=false}
+        return isadded;
+    }
+
    $scope.addtoFav= function(idStation) {
         console.log("added to Favorites",idStation)
         var fav=$localstorage.getObject('favorites');
@@ -356,6 +368,10 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
             {fav.push(idStation)
         $localstorage.setObject('favorites',fav);}
         console.log("list_fav",fav)
+         $ionicPopup.alert({
+            title:'Favorites',
+            template:'This station has been added to Favorites'
+        })
         return fav;
    };
 

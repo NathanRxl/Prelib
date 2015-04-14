@@ -142,7 +142,7 @@ html, body, #map {
     <script type="text/ng-template" id="station.html">
       <ion-view item-text-wrap title={{station.name.slice(8).split("(")[0]}}>
           <ion-nav-buttons side="right">
-            <button ng-click="addtoFav(station)" ng-style="{'background-color':backgroundColor}" ng-show="isadded(station)" class="button button-icon icon ion-star"></button>
+            <button ng-click="addtoFav(station)" ng-style="{color:ifadded(station)}" class="button button-icon icon ion-star"></button>
           </ion-nav-buttons>
         <ion-content>
             <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-information-circled"></i> Station data</div>
@@ -200,7 +200,7 @@ html, body, #map {
         </button></ion-nav-buttons>
     <ion-content>
       <ion-list show-delete="elem.showDelete" show-reorder="elem.showReorder">
-        <ion-item ng-repeat="station in fav" station="station" class="item-remove-animate" ui-sref="tabs.station({stationID: station.number})">
+        <ion-item ng-repeat="station in fav track by station.name" station="station" class="item-remove-animate" ui-sref="tabs.station({stationID: station.number})">
              {{station.name.slice(8).split("(")[0]}}
               <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
           <ion-delete-button class="ion-minus-circled" ng-click="onItemDelete(station)"></ion-delete-button>

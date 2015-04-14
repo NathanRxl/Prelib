@@ -349,18 +349,28 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     $scope.isadded=function(idStation){
         var isadded=true
         var fav=$localstorage.getObject('favorites')
+        if(fav!=null){
         var favnumber=[]
         for(var iter=0;iter<fav.length;iter++)
             {favnumber[iter]=fav[iter].number}
         var bool=favnumber.indexOf(idStation.number)
         console.log("bool",bool)
-        if(bool!=-1){isadded=false}
+        if(bool!=-1){isadded=false}}
         return isadded;
     }
 
+    $scope.ifadded=function(idStation){
+        //console.log($scope.isadded(idStation))
+        if($scope.isadded(idStation)==true){ var style='white' ;}
+        else{var style='yellow' ;}
+        console.log("style",style)
+        return style;
+    }
+
    $scope.addtoFav= function(idStation) {
+    var fav=$localstorage.getObject('favorites');
+        if($scope.isadded(idStation)==true){
         console.log("added to Favorites",idStation)
-        var fav=$localstorage.getObject('favorites');
         if(fav==null)
             { fav=[idStation];
               $localstorage.setObject('favorites',fav);}
@@ -372,7 +382,20 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
             title:'Favorites',
             template:'This station has been added to Favorites'
         })
-        return fav;
+        return fav;}
+        else{
+            var favnumber=[]
+            for(var iter=0;iter<fav.length;iter++)
+            {favnumber[iter]=fav[iter].number}
+            fav.splice(favnumber.indexOf(idStation.number),favnumber.indexOf(idStation.number));
+            console.log("fav_delete",fav)
+            $localstorage.setObject("favorites",fav)
+            $ionicPopup.alert({
+            title:'Favorites',
+            template:'This station has been deleted from Favorites'
+        })
+            return fav;
+        }
    };
 
     

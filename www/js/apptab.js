@@ -38,7 +38,7 @@ app.factory('PrelibAPI', function($http) {
     method: "POST",
     params: {station_id:stationId}
     })
-		}
+		},
     getLast: function(stationId){
             return $http({
         url: 'https://prelib-api.herokuapp.com/report/'+stationId+'/', 
@@ -698,7 +698,9 @@ app.controller("settingsCtrl", function($scope,$rootScope,$localstorage,$ionicPo
 
 })
 
-
+app.controller("settupCtrl", function($scope,$rootScope,$localstorage,$ionicPopup,$http,VelibAPI) {
+    
+})
 
 app.config(function($stateProvider,$urlRouterProvider) {
   $stateProvider
@@ -759,6 +761,15 @@ app.config(function($stateProvider,$urlRouterProvider) {
         'settings-tab': {
           templateUrl: "settings.html",
             controller: "settingsCtrl"
+        }
+      }
+  })
+  .state('settup', {
+      url: "/settup",
+      views: {
+        'settup': {
+          templateUrl: "settup.html",
+            controller: "settupCtrl"
         }
       }
   })

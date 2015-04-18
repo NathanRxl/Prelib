@@ -39,6 +39,7 @@ app.factory('PrelibAPI', function($http) {
     params: {station_id:stationId}
     })
 		},
+    //Get the json sent by Django app with the data over the last report
     getLast: function(stationId){
             return $http({
         url: 'https://prelib-api.herokuapp.com/report/'+stationId+'/', 
@@ -299,6 +300,14 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
         });
         showAlert(numberOfBike);
     }
+    /*//////////////////////////////// Fonction en cours ///////////////////////////////////////////////////
+    $scope.LastReport = function(stationId){
+        PrelibAPI.getLast(stationId).success(function(data){
+            var msg = data.number + " vélos cassés ont été signalé à la station "+data.id+" le "+data.date;
+            return msg;
+        }
+    }*/
+            
     
     $scope.formatAddress = function() {
         var first = $scope.station.address.split("-")[0].toLowerCase();

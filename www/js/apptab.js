@@ -803,14 +803,6 @@ app.config(function($stateProvider,$urlRouterProvider) {
         }
       }
   })
-  .state('settup', {
-      url: "/settup",
-      views: {
-        'settup': {
-          templateUrl: "settup.html",
-            controller: "settupCtrl"
-        }
-      }
-  })
+
     $urlRouterProvider.otherwise("/tabs/stations");
 });          

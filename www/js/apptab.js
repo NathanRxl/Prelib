@@ -361,14 +361,15 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
         });
         showAlert(numberOfBike);
     }
-    /*//////////////////////////////// Fonction en cours ///////////////////////////////////////////////////
-    $scope.LastReport = function(stationId){
-        PrelibAPI.getLast(stationId).success(function(data){
-            var msg = data.number + " vélos cassés ont été signalé à la station "+data.id+" le "+data.date;
-            return msg;
-        }
-    }*/
-            
+    /*//////////////////////////////// Fonction en cours ///////////////////////////////////////////////////*/
+    
+
+    PrelibAPI.getLast($scope.station.number).success(function(data){
+            console.log('data',data);
+            //var msg = data.number + " vélos cassés ont été signalé à la station "+data.id+" le "+data.date;
+            //return msg;
+            $scope.LastReportValue = data;
+    })
     
     $scope.formatAddress = function() {
         var first = $scope.station.address.split("-")[0].toLowerCase();

@@ -401,6 +401,63 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     
 });
 
+app.service('favService', function(TodosService,$localstorage,$rootScope,$ionicPopup) {
+    
+    var isadded = function(StationId){
+        var isadded=true
+        var fav=$localstorage.getObject('favorites')
+        if(fav!=null){
+        var favnumber=[]
+        for(var iter=0;iter<fav.length;iter++)
+            {favnumber[iter]=fav[iter].number}
+        var bool=favnumber.indexOf(StationId)
+        if(bool!=-1){isadded=false}}
+        return isadded;
+    }
+    
+    return {
+    addFav: function(StationId) {
+        TodosService.getStation(StationId).then(function(station){
+        if (station != null || station != undefined){
+        var fav=$localstorage.getObject('favorites');
+        if(isadded(StationId)==true){
+        console.log("added to Favorites",station)
+        if(fav==null)
+            { fav=[station];
+              $localstorage.setObject('favorites',fav);}
+        else
+            {fav.push(station)
+        $localstorage.setObject('favorites',fav);}
+        console.log("list_fav",fav)
+         $ionicPopup.alert({
+            title:'Favorites',
+            template:'This station has been added to Favorites'
+        })
+        return fav;}
+        else{
+            var favnumber=[]
+            for(var iter=0;iter<fav.length;iter++)
+            {favnumber[iter]=fav[iter].number}
+            fav.splice(favnumber.indexOf(StationId),favnumber.indexOf(StationId));
+            console.log("fav_delete",fav)
+            $localstorage.setObject("favorites",fav)
+            $ionicPopup.alert({
+            title:'Favorites',
+            template:'This station has been deleted from Favorites'
+        })
+            return fav;
+        }
+        }
+    });
+    },
+    ifadded: function(StationId) {
+        if(isadded(StationId)==true){ var style='white' ;}
+        else{var style='yellow' ;}
+        return style;
+    }
+    }
+})
+
 app.service('mapService', function($rootScope) {
     return {
     getCenter: function() {
@@ -430,7 +487,7 @@ app.service('mapService', function($rootScope) {
     }
 })
 
-app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$stateParams,$q,$rootScope) {
+app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$stateParams,$q,$rootScope,$compile,$ionicPopup,favService) {
     
     console.log($rootScope.contract);
     if ($rootScope.contract == undefined) { $rootScope.contract = 'Paris';}
@@ -507,39 +564,11 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
         loadStationsMarkers2();
     }
     
-    $scope.addtoFav = function() {
-     console.log("added to Favorites")     
-   };
     
-    var loadStationsMarkers = function() {
-        console.log('markers reloaded');
-        if (markers1.getLayers().length>0) {
-            map.removeLayer(markers1);
-            markers1.clearLayers();  
-        }
-        markers1 = new L.layerGroup();
-        angular.forEach($scope.stations, function(station) {
-            var stationShouldBeDispayedInlargeZoom = map.getZoom()>=15 && station.position.lat>=map.getBounds()._southWest.lat && station.position.lat<=map.getBounds()._northEast.lat && station.position.lng>= map.getBounds()._southWest.lng && station.position.lng<= map.getBounds()._northEast.lng;
-            var stationShouldBeDispayedInSmallZoom = map.getZoom()<15 && Math.abs(map.getCenter().lat-station.position.lat)<0.005 && Math.abs(map.getCenter().lng-station.position.lng)<0.01;
-            if (stationShouldBeDispayedInlargeZoom || stationShouldBeDispayedInSmallZoom) {
-                var color;
-                if (station.available_bikes==0) {color='red';}
-                else if (station.available_bikes==station.bike_stands)  {color='orange';}
-                else  {color='lightblue';}
-                var customIcon = L.AwesomeMarkers.icon({
-                    icon: '',
-                    markerColor: color,
-                    prefix: 'fa',
-                    html: station.available_bikes
-                }); 
-                var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
-                marker.bindPopup("<b>"+station.name.slice(8)+"</b>"+"<br>"+"Bikes:"+station.available_bikes+" /Stands:"+station.bike_stands);
-                markers1.addLayer(marker);
-            }
-        })
-        map.addLayer(markers1);
-    }
+    $scope.addtoFav = function(StationId) { favService.addFav(StationId);};
+    $scope.ifadded=function(StationId){ favService.ifadded(StationId);};
 
+    
     var loadStationsMarkers2 = function() {
         if (markers2 != undefined) { map.removeLayer(markers2); }
     markers2 = new L.MarkerClusterGroup({disableClusteringAtZoom: 15, iconCreateFunction: function (cluster) {
@@ -582,9 +611,14 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
         var marker = L.marker([station.position.lat, station.position.lng],{clickable:true,icon: customIcon});
         marker.available = station.available_bikes;
         marker.capacity = station.bike_stands;
-        marker.bindPopup("<div style='display:inline-block;margin:0px;margin-left:-1em;margin-bottom:-1em;margin-top:-0.5em;margin-right:-1em'> <div ng-click='addtoFav()' style='display:inline-block;margin-right:0.5em'> <a class='icon ion-star energized' style='font-size: 3em'></a> </div> <div style='display:inline-block;text-align:center;'> <a style='text-decoration: none' href='#/tabs/stations/"+station.number+"'>"+station.name.slice(8)+"</a>"+"<br>"+station.available_bikes+" / "+station.bike_stands+"</div></div>");
-        //ui-sref='tabs.station({stationID: "+station.number+ "})
+        var html = '<div style="display:inline-block;margin:0px;margin-left:-1em;margin-bottom:-1em;margin-top:-0.5em;margin-right:-1em"> <div style="display:inline-block;margin-right:0.5em;text-decoration:none"><a ng-click="addtoFav('+station.number+')" ng-style="{color:ifadded('+station.number+')}" class="icon ion-star" style="font-size:3em"></a> </div><div style="display:inline-block;text-align:center;"> <a style="text-decoration: none" href="#/tabs/stations/'+station.number+'">'+station.name.slice(8)+'</a>'+'<br>'+station.available_bikes+' / '+station.bike_stands+'</div> </div>',
+    linkFunction = $compile(angular.element(html));
+    var newScope = $scope.$new();
         
+        
+        /*marker.bindPopup("<div style='display:inline-block;margin:0px;margin-left:-1em;margin-bottom:-1em;margin-top:-0.5em;margin-right:-1em'> <div ng-click='addtoFav()' style='display:inline-block;margin-right:0.5em'> <a class='icon ion-star energized' style='font-size: 3em'></a> </div> <div style='display:inline-block;text-align:center;'> <a style='text-decoration: none' href='#/tabs/stations/"+station.number+"'>"+station.name.slice(8)+"</a>"+"<br>"+station.available_bikes+" / "+station.bike_stands+"</div></div>");*/
+        //ui-sref='tabs.station({stationID: "+station.number+ "})
+        marker.bindPopup(linkFunction(newScope)[0]);
         markers2.addLayer(marker);        
     })
     map.addLayer(markers2);
@@ -640,16 +674,13 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
                     map.setView({lat:station.position.lat,lng:station.position.lng},10,{reset :true});
                 }
                 })
-                
             })
         }
-        
-    }   
-    
+    }    
 })
 
 app.controller("Fav",function($scope,$rootScope,$localstorage){
-        var fav=$localstorage.getObject('favorites')
+    var fav=$localstorage.getObject('favorites')
         console.log(fav)
         $scope.fav=fav;
 

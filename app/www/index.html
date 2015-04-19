@@ -5,10 +5,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>Prelib'</title>
 
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
+    <link rel="stylesheet" href="css/leaflet.awesome-markers.css">
+    <link rel="stylesheet" href="css/MarkerCluster.css" />
+	<link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="css/leaflet.usermarker.css" />
 
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
     <link href="css/ionic.app.css" rel="stylesheet">
@@ -23,6 +31,15 @@
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
+      
+     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+      <script src="js/leaflet.awesome-markers.js"></script>
+
+    
+    <script src="js/angular-leaflet-directive.min.js"></script>
+    <script src="js/leaflet.markercluster-src.js"></script>
+    <script src="js/leaflet.usermarker.js"></script>
+
   </head>
     
 <style media="screen" type="text/css">
@@ -34,30 +51,85 @@ body {
 .selectInput{
   cursor: inherit !important;
 }
-.bar.eventBar {
-  height: 30px !important;
+
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
 }
 </style>
 
-  <body>
+  <body> 
+      
     <ion-nav-bar class="bar-positive">
       <ion-nav-back-button class="button-clear">
         <i class="ion-chevron-left"></i>
       </ion-nav-back-button>
     </ion-nav-bar>
     <ion-nav-view animation="slide-left-right"></ion-nav-view>
+      
+    <script  type="text/ng-template" id="tabs.html">
+      <ion-tabs class="tabs-icon-top tabs-positive">
 
-    <script type="text/ng-template" id="stations.html">
-      <ion-view title="Prelib'">
-      <ion-header-bar  class="bar bar-subheader eventBar">{{"Dernière mise à jour: "+formatDate()}}</ion-header-bar>
-        <ion-content >
-        <ion-refresher pulling-text="Rafraîchir" on-refresh="doRefresh()"> </ion-refresher>
+        <ion-tab title="Home" icon="ion-home" ui-sref="tab.stations">
+          <ion-nav-view name="stations-tab"></ion-nav-view>
+        </ion-tab>
+
+        <ion-tab title="Maps" icon="ion-map" ui-sref="tabs.maps">
+          <ion-nav-view name="maps-tab"></ion-nav-view>
+        </ion-tab>
         
-          <ion-list>
-          <div class="item item-divider">{{nbStationsToDisplay+" stations les plus proches"}}</div>
-            <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='station({stationID: station.number})'>
-            <div item-text-wrap class="item-button">	
-            {{station.name.slice(8).split("(")[0]+" (à "+station.distance.toFixed(0)+" m)"}} 
+        <ion-tab title="Favorites" icon="ion-star" ui-sref="tabs.favorites">
+          <ion-nav-view name="favorites-tab"></ion-nav-view>
+        </ion-tab>
+
+        <ion-tab title="Settings" icon="ion-gear-a" ui-sref="tabs.settings">
+          <ion-nav-view name="settings-tab"></ion-nav-view>
+        </ion-tab>
+
+      </ion-tabs>
+    </script>  
+      
+    <script type="text/ng-template" id="stations.html">
+   
+      <ion-view title="Prelib'">
+      <ion-nav-buttons side="right">
+        <button ng-click="showOrHideSearch()" class="button button-icon icon ion-search"></button>
+        </ion-nav-buttons>
+      <ion-header-bar  class="bar bar-subheader eventBar">{{"Last update: "+formatDate()}}</ion-header-bar>
+    
+        <ion-content >
+
+    <div id="search-box" class="bar bar-header item-input-inset" ng-hide=!isSearching>
+        <div class="item-input-wrapper">
+          <i class="icon ion-ios7-search placeholder-icon"></i>
+          <input type="search" placeholder="Search" ng-model="searchQuery">
+          <i class="clear-search icon ion-ios7-close-empty" ng-model="searchQuery" ng-click="clearSearch()"></i>
+        </div>
+        <button class="button button-clear" ng-click="showOrHideSearch()">
+          Cancel
+        </button>
+      </div>
+    
+    
+        <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefresh()"> </ion-refresher>
+          <ion-list ng-hide=isSearching>
+          <div class="item item-divider" >{{nbStationsToDisplay+" nearest stations"}}</div>
+            <ion-item ng-repeat="station in stations | orderBy:'distance' | limitTo : nbStationsToDisplay" ui-sref='tabs.station({stationID: station.number})'>
+            <div item-text-wrap class="item-button" ng-style="{'background-color':backgroundColor(station)}">	
+            {{station.name.slice(8).split("(")[0]+" "+distanceToDisplay(station.distance)}} 
+                    
+				    <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
+            </div>
+        </ion-item>
+        </ion-list>
+        <ion-list ng-if=isSearching>
+        <!-- <div class="item item-divider">"Searching..."</div> -->
+        <ion-item ng-repeat="station in stations | filter :  {name:searchQuery} track by station.number" ui-sref='tabs.station({stationID: station.number})'>
+            <div item-text-wrap class="item-button" ng-style="{'background-color':backgroundColor(station)}">	
+            {{station.name.slice(8).split("(")[0]+" "+distanceToDisplay(station.distance)}} 
                     
 				    <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
             </div>
@@ -69,32 +141,113 @@ body {
 
     <script type="text/ng-template" id="station.html">
       <ion-view item-text-wrap title={{station.name.slice(8).split("(")[0]}}>
+          <ion-nav-buttons side="right">
+            <button ng-click="addtoFav(station.number)" ng-style="{color:ifadded(station.number)}" class="button button-icon icon ion-star"></button>
+          </ion-nav-buttons>
         <ion-content>
-            <div class="item item-divider"> <i class="icon ion-information-circled"></i> Informations de la station</div>
-            <a class="item item-icon-left item-text-wrap" href={{mapsUrl}}>
+            <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-information-circled"></i> Station data</div>
+            <a class="item item-icon-left item-text-wrap" ng-click=showMapChoices()>
                 <i class="icon ion-map"></i>
-                <span>{{formatAddress(1)}}</span>
-                <br><span>{{formatAddress(2)}}</span>
+                <span>{{formatAddress()}}</span>
             </a>
+            <!--<button class="button button-full button-light icon-left ion-map" href = {{mapsUrl}}>{{station.address}} </button>-->
             <a class="item item-icon-left">
                 <i class="icon ion-location"></i>Distance:
                 <span>{{station.distance.toFixed(0)+" m"}}</span>
             </a>
+            <!--<button class="button button-full button-light icon-left ion-location">{{"Distance: "+station.distance.toFixed(0)+" m"}} </button>-->
             <a class="item item-icon-left">
-                <i class="icon ion-checkmark-round"></i>Disponibilité:
+                <i class="icon ion-checkmark-round"></i>Availability:
                 <span>{{station.available_bikes+" / "+station.bike_stands}}</span>
+            </a>
+            <a class="item item-icon-left">
+                <i class="icon ion-clock"></i>Last Report:
+                <span>{{LastReportValue}}</span>
             </a>
             <!--<a class="item item-icon-left"><i class="icon ion-person"></i>Dernier signalement:
                 <span>{{LastReport(station.station_id)}}</span>
             </a>-->
-            <div class="item item-divider"> <i class="icon ion-alert-circled"></i> Signaler un Velib' cassé</div>
+            <!--<button class="button button-full button-light icon-left ion-checkmark-circled ">{{station.available_bikes}} / {{station.bike_stands}}</button>-->
+            <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-alert-circled"></i> Report a broken bike</div>
             <label class="item item-input item-select">
-                <div class="input-label">Sélectionnez le nombre</div>
+                <div class="input-label">Select how many</div>
                 <select ng-model="chosen" ng-options="item as item.name for item in devList" ng-change="report(station.number,chosen.id)"></select>
             </label>
         </ion-content>
       </ion-view>
     </script>
+      
+      <script id="maps.html" type="text/ng-template">
+      <ion-view title={{title}}>
+      
+      <!-- <ion-nav-buttons side="left"> <button ng-click="refresh()" class="button button-icon icon ion-refresh"></button> </ion-nav-buttons> -->
+      <ion-nav-buttons side="right">
+        <button ng-click="locate()" class="button button-icon icon ion-pinpoint"></button>
+        </ion-nav-buttons>
+        <ion-nav-buttons side="left">
+        <label class="toggle toggle-stable" >
+            <input type="checkbox" ng-model="isInversed" ng-change="updateNeed()">
+            <div class="track"> <div class="handle"></div> </div>
+        </label></ion-nav-buttons>
+        <ion-content has-header="true" has-tabs="true" overflow-scroll="true">
+         <!-- <leaflet id="map" data-tap-disabled="true" style="height: 100%"></leaflet> -->
+          <div id="map" data-tap-disabled="true" style="height: 100%"></div>
+        </ion-content>
+      </ion-view>
+    </script>
+      
+      <script id="favorites.html" type="text/ng-template">
+      <ion-view title="Favorites">
+      <ion-nav-buttons side="left">
+        <button class="button button-icon icon ion-minus-circled"
+          ng-click="elem.showDelete = !elem.showDelete; elem.showReorder = false"></button></ion-nav-buttons>
+           <ion-nav-buttons side="right">
+          <button class="button" ng-click="elem.showDelete = false; elem.showReorder = !elem.showReorder">
+            Reorder
+        </button></ion-nav-buttons>
+    <ion-content>
+      <ion-list show-delete="elem.showDelete" show-reorder="elem.showReorder">
+        <ion-item ng-repeat="station in fav track by station.name" station="station" class="item-remove-animate" ui-sref="tabs.station({stationID: station.number})">
+             {{station.name.slice(8).split("(")[0]}}
+              <span class="item-note">{{station.available_bikes}} / {{station.bike_stands}}</span>
+          <ion-delete-button class="ion-minus-circled" ng-click="onItemDelete(station)"></ion-delete-button>
+          <ion-reorder-button class ="ion-navicon" on-reorder="moveItem(station, $fromIndex,$toIndex)"></ion-reorder-button>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+    </ion-view>
+      </script>
+
+      <script id="settings.html" type="text/ng-template">
+      <ion-view title="Settings">
+        <ion-content>
+        <div class="item item-divider" >Number of stations to display</div>
+        <div class="item range range-positive">
+        <i class="icon ion-minus-circled"></i>
+        <input type="range" name="nbStationsToDisplay" ng-model="data.nbStationsToDisplay"min="1" max="20" value="5">
+        <i class="icon ion-plus-circled"></i> {{' ' + data.nbStationsToDisplay}}
+        </div> 
+        <div class="item item-divider" >City contract</div>
+        <label class="item item-input item-select">                <div class="input-label">Change city</div>
+
+        <select ng-model="chosen" ng-options="item.name group by item.country_code for item in contracts track by item.name" ng-change="changeContract(chosen.name)">{{chosen.name}}</select>
+        <!--<select ng-model="selectedItem" ng-change="changeContract(selectedItem)">
+        <option ng-repeat="contract in contracts | orderBy: 'name' " value="{{contract.name}}">{{contract.name}}</option>
+      </select>-->
+        </label>
+      
+        <a class="item item-icon-left" ng-click="sendFeedback()">
+         <i class="icon ion-chatbubble-working"></i>
+          Contactez nous!
+        </a>
+        <a class="item item-icon-left" ng-click="aPropos()">
+         <i class="icon ion-help-circled"></i>
+          A propos
+        </a>
+        </ion-content>
+      </ion-view>
+    </script>
+      
   </body>
 
 </html>

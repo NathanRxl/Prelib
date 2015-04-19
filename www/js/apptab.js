@@ -270,7 +270,68 @@ app.service('TodosService', function($q,$localstorage,LoaderService,VelibAPI,$ro
     }
   }
 })
-app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,$ionicActionSheet,$state,station){
+
+app.service('favService', function(TodosService,$localstorage,$rootScope,$ionicPopup) {
+    
+    var isadded = function(StationId){
+        var isadded=true
+        var fav=$localstorage.getObject('favorites')
+        if(fav!=null){
+        var favnumber=[]
+        for(var iter=0;iter<fav.length;iter++)
+            {favnumber[iter]=fav[iter].number}
+        var bool=favnumber.indexOf(StationId)
+        if(bool!=-1){isadded=false}}
+        return isadded;
+    }
+    
+    return {
+    addFav: function(StationId) {
+        TodosService.getStation(StationId).then(function(station){
+        if (station != null || station != undefined){
+        var fav=$localstorage.getObject('favorites');
+        if(isadded(StationId)==true){
+        console.log("added to Favorites",station)
+        if(fav==null)
+            { fav=[station];
+              $localstorage.setObject('favorites',fav);}
+        else
+            {fav.push(station)
+        $localstorage.setObject('favorites',fav);}
+        console.log("list_fav",fav)
+         $ionicPopup.alert({
+            title:'Favorites',
+            template:'This station has been added to Favorites'
+        })
+        return fav;}
+        else{
+            var favnumber=[]
+            for(var iter=0;iter<fav.length;iter++)
+            {favnumber[iter]=fav[iter].number}
+            fav.splice(favnumber.indexOf(StationId),favnumber.indexOf(StationId));
+            console.log("fav_delete",fav)
+            $localstorage.setObject("favorites",fav)
+            $ionicPopup.alert({
+            title:'Favorites',
+            template:'This station has been deleted from Favorites'
+        })
+            return fav;
+        }
+        }
+    });
+    },
+    ifadded: function(StationId,type) {
+        var style;
+        if(isadded(StationId)==true){ 
+            if(type==1) {style='white'}
+            else if(type==2) {style='grey'}
+        }
+        else{style='yellow';}
+        return style;
+    }
+    }
+})
+app.controller('ReportController', function($scope,$stateParams,$ionicPopup,PrelibAPI,$localstorage,$ionicActionSheet,$state,station,favService){
     
     $scope.station = station;
     var ratio = ($scope.station.available_bikes/$scope.station.bike_stands).toFixed(2);
@@ -355,117 +416,11 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
    });
     }
 
-    $scope.isadded=function(idStation){
-        var isadded=true
-        var fav=$localstorage.getObject('favorites')
-        if(fav!=null){
-        var favnumber=[]
-        for(var iter=0;iter<fav.length;iter++)
-            {favnumber[iter]=fav[iter].number}
-        var bool=favnumber.indexOf(idStation.number)
-        console.log("bool",bool)
-        if(bool!=-1){isadded=false}}
-        return isadded;
-    }
-
-    $scope.ifadded=function(idStation){
-        //console.log($scope.isadded(idStation))
-        if($scope.isadded(idStation)==true){ var style='white' ;}
-        else{var style='yellow' ;}
-        console.log("style",style)
-        return style;
-    }
-
-   $scope.addtoFav= function(idStation) {
-    var fav=$localstorage.getObject('favorites');
-        if($scope.isadded(idStation)==true){
-        console.log("added to Favorites",idStation)
-        if(fav==null)
-            { fav=[idStation];
-              $localstorage.setObject('favorites',fav);}
-        else
-            {fav.push(idStation)
-        $localstorage.setObject('favorites',fav);}
-        console.log("list_fav",fav)
-         $ionicPopup.alert({
-            title:'Favorites',
-            template:'This station has been added to Favorites'
-        })
-        return fav;}
-        else{
-            var favnumber=[]
-            for(var iter=0;iter<fav.length;iter++)
-            {favnumber[iter]=fav[iter].number}
-            fav.splice(favnumber.indexOf(idStation.number),favnumber.indexOf(idStation.number));
-            console.log("fav_delete",fav)
-            $localstorage.setObject("favorites",fav)
-            $ionicPopup.alert({
-            title:'Favorites',
-            template:'This station has been deleted from Favorites'
-        })
-            return fav;
-        }
-   };
+    $scope.ifadded = function(StationId){ return favService.ifadded(StationId,1); };
+    $scope.addtoFav = function(StationId) { favService.addFav(StationId); };
 
     
 });
-
-app.service('favService', function(TodosService,$localstorage,$rootScope,$ionicPopup) {
-    
-    var isadded = function(StationId){
-        var isadded=true
-        var fav=$localstorage.getObject('favorites')
-        if(fav!=null){
-        var favnumber=[]
-        for(var iter=0;iter<fav.length;iter++)
-            {favnumber[iter]=fav[iter].number}
-        var bool=favnumber.indexOf(StationId)
-        if(bool!=-1){isadded=false}}
-        return isadded;
-    }
-    
-    return {
-    addFav: function(StationId) {
-        TodosService.getStation(StationId).then(function(station){
-        if (station != null || station != undefined){
-        var fav=$localstorage.getObject('favorites');
-        if(isadded(StationId)==true){
-        console.log("added to Favorites",station)
-        if(fav==null)
-            { fav=[station];
-              $localstorage.setObject('favorites',fav);}
-        else
-            {fav.push(station)
-        $localstorage.setObject('favorites',fav);}
-        console.log("list_fav",fav)
-         $ionicPopup.alert({
-            title:'Favorites',
-            template:'This station has been added to Favorites'
-        })
-        return fav;}
-        else{
-            var favnumber=[]
-            for(var iter=0;iter<fav.length;iter++)
-            {favnumber[iter]=fav[iter].number}
-            fav.splice(favnumber.indexOf(StationId),favnumber.indexOf(StationId));
-            console.log("fav_delete",fav)
-            $localstorage.setObject("favorites",fav)
-            $ionicPopup.alert({
-            title:'Favorites',
-            template:'This station has been deleted from Favorites'
-        })
-            return fav;
-        }
-        }
-    });
-    },
-    ifadded: function(StationId) {
-        if(isadded(StationId)==true){ var style='white' ;}
-        else{var style='yellow' ;}
-        return style;
-    }
-    }
-})
 
 app.service('mapService', function($rootScope) {
     return {
@@ -574,8 +529,8 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
     }
     
     
-    $scope.addtoFav = function(StationId) { favService.addFav(StationId);};
-    $scope.ifadded=function(StationId){ favService.ifadded(StationId);};
+    $scope.addtoFav = function(StationId) { favService.addFav(StationId,2);};
+    $scope.ifadded=function(StationId){ return favService.ifadded(StationId);};
 
     
     var loadStationsMarkers2 = function() {

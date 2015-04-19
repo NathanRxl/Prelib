@@ -142,7 +142,7 @@ html, body, #map {
     <script type="text/ng-template" id="station.html">
       <ion-view item-text-wrap title={{station.name.slice(8).split("(")[0]}}>
           <ion-nav-buttons side="right">
-            <button ng-click="addtoFav(station)" ng-style="{color:ifadded(station)}" class="button button-icon icon ion-star"></button>
+            <button ng-click="addtoFav(station.number)" ng-style="{color:ifadded(station.number)}" class="button button-icon icon ion-star"></button>
           </ion-nav-buttons>
         <ion-content>
             <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-information-circled"></i> Station data</div>

@@ -160,6 +160,9 @@ html, body, #map {
                 <i class="icon ion-checkmark-round"></i>Availability:
                 <span>{{station.available_bikes+" / "+station.bike_stands}}</span>
             </a>
+            <!--<a class="item item-icon-left"><i class="icon ion-person"></i>Dernier signalement:
+                <span>{{LastReport(station.station_id)}}</span>
+            </a>-->
             <!--<button class="button button-full button-light icon-left ion-checkmark-circled ">{{station.available_bikes}} / {{station.bike_stands}}</button>-->
             <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-alert-circled"></i> Report a broken bike</div>
             <label class="item item-input item-select">

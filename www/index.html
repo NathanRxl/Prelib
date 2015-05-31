@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/MarkerCluster.css" />
 	<link rel="stylesheet" href="css/MarkerCluster.Default.css" />
     <link rel="stylesheet" href="css/leaflet.usermarker.css" />
+    <link rel="stylesheet" href="css/xcharts.min.css" />
 
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
     <link href="css/ionic.app.css" rel="stylesheet">
@@ -39,6 +40,8 @@
     <script src="js/angular-leaflet-directive.min.js"></script>
     <script src="js/leaflet.markercluster-src.js"></script>
     <script src="js/leaflet.usermarker.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="js/xcharts.min.js"></script>
 
   </head>
     
@@ -164,10 +167,7 @@ html, body, #map {
                 <i class="icon ion-clock"></i>Last Report:
                 <span>{{LastReportValue}}</span>
             </a>
-            <!--<a class="item item-icon-left"><i class="icon ion-person"></i>Dernier signalement:
-                <span>{{LastReport(station.station_id)}}</span>
-            </a>-->
-            <!--<button class="button button-full button-light icon-left ion-checkmark-circled ">{{station.available_bikes}} / {{station.bike_stands}}</button>-->
+            <figure style="width: 400px; height: 300px;" id="myChart"></figure>
             <div class="item item-divider" ng-style="{'background-color':backgroundColor}"> <i class="icon ion-alert-circled"></i> Report a broken bike</div>
             <label class="item item-input item-select">
                 <div class="input-label">Select how many</div>

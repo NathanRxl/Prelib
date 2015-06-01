@@ -420,6 +420,9 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     $scope.ifadded = function(StationId){ return favService.ifadded(StationId,1); };
     $scope.addtoFav = function(StationId) { favService.addFav(StationId); };
 
+    
+});
+
 app.service('mapService', function($rootScope) {
     return {
     getCenter: function() {

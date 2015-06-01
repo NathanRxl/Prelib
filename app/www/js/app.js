@@ -420,33 +420,6 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     $scope.ifadded = function(StationId){ return favService.ifadded(StationId,1); };
     $scope.addtoFav = function(StationId) { favService.addFav(StationId); };
 
-    var data = {
-  "xScale": "time",
-  "yScale": "linear",
-  "type": "line",
-  "main": [
-    {
-      "data": [
-        {
-          "x": "2012-11-05",
-          "y": 1
-        },
-        {
-          "x": "2012-11-06",
-          "y": 6
-        }
-      ]
-    }
-  ]
-};
-var opts = {
-  "dataFormatX": function (x) { return d3.time.format('%Y-%m-%d').parse(x); },
-  "tickFormatX": function (x) { return d3.time.format('%A')(x); }
-};
-var myChart = new xChart('line', data, '#myChart', opts);
-    
-});
-
 app.service('mapService', function($rootScope) {
     return {
     getCenter: function() {

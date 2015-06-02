@@ -25,9 +25,9 @@ app.run(function($ionicPlatform) {
 
 app.factory('PrelibAPI', function($http) {
 	return {
-		report: function(stationId,numberOfBike){
+		report: function(stationId,numberOfBikeAvailable,numberOfBikeBroken){
 			return $http({
-    url: 'https://prelib-api.herokuapp.com/report/'+stationId+'/'+numberOfBike+'/', 
+    url: 'https://prelib-api.herokuapp.com/report/'+stationId+'/'+numberOfBikeAvailable+'/'+numberOfBikeBroken+'/', 
     method: "GET"//,
     //params: {station_id:stationId, broken_bikes:numberOfBike}
     })
@@ -338,6 +338,8 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     if (ratio > 0.5) {$scope.backgroundColor="rgba(165, 217, 254, 0.9)";}
     else if (ratio > 0.20)  {$scope.backgroundColor="rgba(241, 202, 148, 0.9)";}
     else  {$scope.backgroundColor="rgba(229, 141, 127, 0.9)";}
+
+    GetLastReport();
     
     function showAlert(numberOfBike) {
         var textToDisplay = "";
@@ -349,27 +351,41 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
         });
     };
     
+    function GetLastReport(){
+    PrelibAPI.getLast($scope.station.number).success(function(data){
+        console.log('last report data from heroku db',data);
+        if (typeof(data) === 'object'){
+            var dmy = data.report_date.split(" ")[0].split("\\");
+            var hms = data.report_date.split(" ")[1].split(":");
+            var diff = new Date()-(new Date(dmy[2],dmy[1]-1,dmy[0],hms[0],hms[1],hms[2]));
+            diff = diff - 1000*60*60*2 //2 heures de décalages avec le serveur
+            var time="0s";
+            if (diff/(1000*60*60*24)>1){time=Math.floor(diff/(1000*60*60*24))+"d";}
+            else if (diff/(1000*60*60)>1){time=Math.floor(diff/(1000*60*60))+"h";}
+            else if (diff/(1000*60)>1){time=Math.floor(diff/(1000*60))+"m";}
+            else if (diff/(1000)>=0){time=Math.floor(diff/1000)+"s";}
+            $scope.LastReportValue=data.broken_bikes+" broken bikes ("+time+")";
+        }
+        else{  $scope.LastReportValue=data };
+    })
+    };
+    
     $scope.report = function(idStation,numberOfBike) {
         console.log([idStation,numberOfBike]);
-        PrelibAPI.report(idStation,numberOfBike).success(function(data){
+        PrelibAPI.report(idStation,$scope.station.available_bikes,numberOfBike).success(function(data){
             console.log('POST resquest successfull');
             console.log(data);
+            GetLastReport();
         })
         .error(function(data){
             console.log('POST request failure');
             console.log(data);
         });
         showAlert(numberOfBike);
-    }
-    /*//////////////////////////////// Fonction en cours ///////////////////////////////////////////////////*/
+        
+    }    
     
-
-    PrelibAPI.getLast($scope.station.number).success(function(data){
-            console.log('data',data);
-            //var msg = data.number + " vélos cassés ont été signalé à la station "+data.id+" le "+data.date;
-            //return msg;
-            $scope.LastReportValue = data;
-    })
+    
     
     $scope.formatAddress = function() {
         var first = $scope.station.address.split("-")[0].toLowerCase();
@@ -420,30 +436,6 @@ app.controller('ReportController', function($scope,$stateParams,$ionicPopup,Prel
     $scope.ifadded = function(StationId){ return favService.ifadded(StationId,1); };
     $scope.addtoFav = function(StationId) { favService.addFav(StationId); };
 
-    var data = {
-  "xScale": "time",
-  "yScale": "linear",
-  "type": "line",
-  "main": [
-    {
-      "data": [
-        {
-          "x": "2012-11-05",
-          "y": 1
-        },
-        {
-          "x": "2012-11-06",
-          "y": 6
-        }
-      ]
-    }
-  ]
-};
-var opts = {
-  "dataFormatX": function (x) { return d3.time.format('%Y-%m-%d').parse(x); },
-  "tickFormatX": function (x) { return d3.time.format('%A')(x); }
-};
-var myChart = new xChart('line', data, '#myChart', opts);
     
 });
 

@@ -121,6 +121,19 @@ app.factory('LoaderService', function($rootScope, $ionicLoading) {
     }
 });
 
+/////////////////////////////////////////////////////////////
+
+var tryAPIGeolocation = function(successFunction, onError) {
+    jQuery.post( "https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyDUqTtX0Jn1Cvo2ctI75deywOPbQHALFIo", function(success) {
+        successFunction({coords: {latitude: success.location.lat, longitude: success.location.lng}});
+  })
+  .fail(function(err) {
+    onError(err);
+  });
+};
+
+/////////////////////////////////////////////////////////////
+
 app.controller('StationsController', function($scope,$rootScope,VelibAPI,$localstorage,LoaderService,$ionicLoading,$window,stations ){
     LoaderService.show();
     if ($rootScope.nbStationsToDisplay!= undefined) 
@@ -202,7 +215,8 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
 	}
 	
     $scope.doRefresh = function() {
-        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
+        tryAPIGeolocation(onGeolocationSuccessRefresh, onError);
+        // navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
         $scope.$broadcast('scroll.refreshComplete');
     };    
     
@@ -218,11 +232,13 @@ app.controller('StationsController', function($scope,$rootScope,VelibAPI,$locals
         $ionicLoading.hide();
     }
     else if(last_connection != null && $localstorage.getObject("stations"+$rootScope.contract) != null && diff < 60000){
-        navigator.geolocation.getCurrentPosition(onGeolocationSuccessDistancedRecomputed, onError,{enableHighAccuracy: true});
+        // navigator.geolocation.getCurrentPosition(onGeolocationSuccessDistancedRecomputed, onError,{enableHighAccuracy: true});
+        tryAPIGeolocation(onGeolocationSuccessDistancedRecomputed, onError);
         $ionicLoading.hide();
     }
     else {
-        navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
+        tryAPIGeolocation(onGeolocationSuccessRefresh, onError);
+        // navigator.geolocation.getCurrentPosition(onGeolocationSuccessRefresh, onError,{enableHighAccuracy: true});
         $ionicLoading.hide();
     }
       	
@@ -509,6 +525,7 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
     var markers2 = new L.layerGroup();
     
     function onLocationFound(e) {
+        console.log(e);
         var radius = e.accuracy / 2;
         //circleCenter.setLatLng(e.latlng);
         //circleCenter.setRadius(radius);
@@ -521,6 +538,19 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
         map.setView(markerCenter.getLatLng(),16); 
         markerCenter.bindPopup("You are within " + radius.toFixed(0) + " meters from this point");
     }
+
+    function onGeoLocationFound(e) {
+        console.log(e);
+        var accuracy = 2000;
+        var radius = accuracy / 2;
+        markerCenter.setLatLng({lat:e.coords.latitude, lng:e.coords.longitude});
+        markerCenter.setAccuracy(accuracy);
+        markerCenter.setPulsing(true);
+        markerCenter.addTo(map);
+        map.setView(markerCenter.getLatLng(),16); 
+        markerCenter.bindPopup("You are within " + radius.toFixed(0) + " meters from this point");
+    }
+
     map.on('locationfound', onLocationFound);
     
     function onLocationError(e) {
@@ -529,7 +559,8 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
     map.on('locationerror', onLocationError);
     
     $scope.locate = function(){
-        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
+        tryAPIGeolocation(onGeoLocationFound, onLocationError);
+        // map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
     }
     
     $scope.isInversed= false;
@@ -615,7 +646,8 @@ app.controller("MapCtrl", function($scope,VelibAPI,mapService,$localstorage,$sta
     if ($stateParams.stationID == undefined || $stateParams.stationID == '' || $stateParams.stationID == null) {
         console.log('$stateParams.stationID not defined')
         console.log($stateParams.stationID);
-        map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
+        tryAPIGeolocation(onGeoLocationFound, onLocationError);
+        // map.locate({setView: true, enableHighAccuracy: true, maxZoom :16});
         if (last_connection != null && $localstorage.getObject("stations"+$rootScope.contract) != null && diff < 100000){
             console.log("stations data load from storage");
             $scope.stations = $localstorage.getObject("stations"+$rootScope.contract);
